@@ -108,7 +108,7 @@ class KuzuDBManager:
             ("Directory", "path STRING, name STRING, PRIMARY KEY (path)"),
             ("Module", "name STRING, lang STRING, full_import_name STRING, PRIMARY KEY (name)"),
             # For types with composite keys (name, path, line_number), we use a 'uid'
-            ("Function", "uid STRING, name STRING, path STRING, line_number INT64, end_line INT64, source STRING, docstring STRING, lang STRING, cyclomatic_complexity INT64, context STRING, context_type STRING, class_context STRING, is_dependency BOOLEAN, decorators STRING[], args STRING[], PRIMARY KEY (uid)"),
+            ("Function", "uid STRING, name STRING, path STRING, line_number INT64, end_line INT64, source STRING, docstring STRING, lang STRING, cyclomatic_complexity INT64, context STRING, context_type STRING, class_context STRING, is_dependency BOOLEAN, decorators STRING[], args STRING[], http_method STRING, http_path STRING, PRIMARY KEY (uid)"),
             ("Class", "uid STRING, name STRING, path STRING, line_number INT64, end_line INT64, source STRING, docstring STRING, lang STRING, is_dependency BOOLEAN, decorators STRING[], PRIMARY KEY (uid)"),
             ("Variable", "uid STRING, name STRING, path STRING, line_number INT64, source STRING, docstring STRING, lang STRING, value STRING, context STRING, is_dependency BOOLEAN, PRIMARY KEY (uid)"),
             ("Trait", "uid STRING, name STRING, path STRING, line_number INT64, end_line INT64, source STRING, docstring STRING, lang STRING, is_dependency BOOLEAN, PRIMARY KEY (uid)"),
@@ -132,12 +132,13 @@ class KuzuDBManager:
             # or the rel table creation will fail silently, leading to runtime
             # "Binder exception: Table CONTAINS does not exist".
             ("CONTAINS", "FROM File TO Function, FROM File TO Class, FROM File TO Variable, FROM File TO Trait, FROM File TO Interface, FROM `Macro` TO `Macro`, FROM File TO `Macro`, FROM File TO Struct, FROM File TO Enum, FROM File TO `Union`, FROM File TO Annotation, FROM File TO Record, FROM File TO `Property`, FROM Repository TO Directory, FROM Directory TO Directory, FROM Directory TO File, FROM Repository TO File, FROM Class TO Function, FROM Function TO Function", True),
-            ("CALLS", "FROM Function TO Function, FROM Function TO Class, FROM File TO Function, FROM File TO Class, FROM Class TO Function, FROM Class TO Class, line_number INT64, args STRING[], full_call_name STRING", True),
+            ("CALLS", "FROM Function TO Function, FROM Function TO Class, FROM File TO Function, FROM File TO Class, FROM Class TO Function, FROM Class TO Class, line_number INT64, args STRING[], full_call_name STRING, confidence DOUBLE, resolution_tier INT64, confidence_label STRING, source STRING, resolution_method STRING, called_name STRING", True),
             ("IMPORTS", "FROM File TO Module, alias STRING, full_import_name STRING, imported_name STRING, line_number INT64", False),
-            ("INHERITS", "FROM Class TO Class, FROM Record TO Record, FROM Interface TO Interface", True),
+            ("INHERITS", "FROM Class TO Class, FROM Record TO Record, FROM Interface TO Interface, confidence_label STRING", True),
             ("HAS_PARAMETER", "FROM Function TO Parameter", False),
             ("INCLUDES", "FROM Class TO Module", False),
-            ("IMPLEMENTS", "FROM Class TO Interface, FROM Struct TO Interface, FROM Record TO Interface", True)
+            ("IMPLEMENTS", "FROM Class TO Interface, FROM Struct TO Interface, FROM Record TO Interface", True),
+            ("INJECTS", "FROM Class TO Class, field_name STRING, inject_line INT64, confidence_label STRING", False)
         ]
 
         for table_name, schema in node_tables:
@@ -164,7 +165,8 @@ class KuzuDBManager:
 
     def _run_schema_migrations(self):
         """Add columns introduced after older local Kùzu databases were created."""
-        migrations = [
+        # Simple (non-group) table migrations
+        simple_migrations = [
             ("File", "package_name", "STRING"),
             ("Module", "full_import_name", "STRING"),
             ("IMPORTS", "full_import_name", "STRING"),
@@ -172,14 +174,51 @@ class KuzuDBManager:
             # Freshness properties added to Repository in 0.4.6
             ("Repository", "indexed_at", "STRING"),
             ("Repository", "commit_hash", "STRING"),
+            # Spring endpoint properties on Function
+            ("Function", "http_method", "STRING"),
+            ("Function", "http_path", "STRING"),
         ]
 
-        for table_name, column_name, column_type in migrations:
+        # REL TABLE GROUP migrations: KuzuDB creates sub-tables named
+        # <group>_<FromLabel>_<ToLabel> for each binding.  ALTER TABLE must
+        # target each sub-table individually; using the group name fails.
+        _CALLS_SUBTABLES = [
+            "CALLS_Function_Function", "CALLS_Function_Class",
+            "CALLS_File_Function", "CALLS_File_Class",
+            "CALLS_Class_Function", "CALLS_Class_Class",
+        ]
+        _INHERITS_SUBTABLES = [
+            "INHERITS_Class_Class", "INHERITS_Record_Record",
+            "INHERITS_Interface_Interface",
+        ]
+
+        group_migrations = []
+        for col_name, col_type in [
+            ("confidence", "DOUBLE"),
+            ("resolution_tier", "INT64"),
+            ("confidence_label", "STRING"),
+            ("source", "STRING"),
+            ("resolution_method", "STRING"),
+            ("called_name", "STRING"),
+        ]:
+            for sub in _CALLS_SUBTABLES:
+                group_migrations.append((sub, col_name, col_type))
+
+        for sub in _INHERITS_SUBTABLES:
+            group_migrations.append((sub, "confidence_label", "STRING"))
+
+        all_migrations = simple_migrations + group_migrations
+
+        for table_name, column_name, column_type in all_migrations:
             try:
                 self._conn.execute(f"ALTER TABLE `{table_name}` ADD {column_name} {column_type}")
             except Exception as e:
                 err = str(e).lower()
                 if "already exists" in err or "duplicate" in err or "already has property" in err:
+                    continue
+                # Sub-table may not exist if the group was freshly created with
+                # the correct schema; silently skip "does not exist" errors.
+                if "does not exist" in err or "not found" in err:
                     continue
                 warning_logger(f"Kuzu Schema Migration Error ({table_name}.{column_name}): {e}")
                 debug_log(f"Kuzu Schema Migration Error ({table_name}.{column_name}): {e}")
@@ -431,7 +470,7 @@ class KuzuSessionWrapper:
             'File': {'path', 'name', 'relative_path', 'package_name', 'is_dependency'},
             'Directory': {'path', 'name'},
             'Module': {'name', 'lang', 'full_import_name'},
-            'Function': {'uid', 'name', 'path', 'line_number', 'end_line', 'source', 'docstring', 'lang', 'cyclomatic_complexity', 'context', 'context_type', 'class_context', 'is_dependency', 'decorators', 'args'},
+            'Function': {'uid', 'name', 'path', 'line_number', 'end_line', 'source', 'docstring', 'lang', 'cyclomatic_complexity', 'context', 'context_type', 'class_context', 'is_dependency', 'decorators', 'args', 'http_method', 'http_path'},
             'Class': {'uid', 'name', 'path', 'line_number', 'end_line', 'source', 'docstring', 'lang', 'is_dependency', 'decorators'},
             'Variable': {'uid', 'name', 'path', 'line_number', 'source', 'docstring', 'lang', 'value', 'context', 'is_dependency'},
             'Trait': {'uid', 'name', 'path', 'line_number', 'end_line', 'source', 'docstring', 'lang', 'is_dependency'},
