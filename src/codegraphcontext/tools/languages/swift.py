@@ -7,34 +7,16 @@ from codegraphcontext.utils.tree_sitter_manager import execute_query
 SWIFT_QUERIES = {
     "functions": """
         [
-            (function_declaration
-                name: (simple_identifier) @name
-            ) @function_node
+            (function_declaration) @function_node
             (init_declaration) @init_node
         ]
     """,
     "classes": """
         [
-            (class_declaration
-                declaration_kind: "class"
-                name: (type_identifier) @name
-            ) @class
-            (class_declaration
-                declaration_kind: "struct"
-                name: (type_identifier) @name
-            ) @struct
-            (class_declaration
-                declaration_kind: "enum"
-                name: (type_identifier) @name
-            ) @enum
-            (class_declaration
-                declaration_kind: "protocol"
-                name: (type_identifier) @name
-            ) @protocol
-            (class_declaration
-                declaration_kind: "actor"
-                name: (type_identifier) @name
-            ) @class
+            (class_declaration "class") @class
+            (class_declaration "struct") @struct
+            (class_declaration "enum") @enum
+            (protocol_declaration) @protocol
         ]
     """,
     "imports": """
@@ -45,14 +27,8 @@ SWIFT_QUERIES = {
     """,
     "variables": """
         [
-            (property_declaration
-                name: (pattern
-                    bound_identifier: (simple_identifier) @name
-                )
-            ) @variable
-            (property_declaration
-                name: (pattern) @pattern
-            ) @variable
+            (property_declaration) @variable
+            (parameter) @variable
         ]
     """,
 }
@@ -125,7 +101,7 @@ class SwiftTreeSitterParser:
                 "classes": parsed_classes,
                 "structs": parsed_structs,
                 "enums": parsed_enums,
-                "protocols": parsed_protocols,
+                "traits": parsed_protocols,
                 "variables": parsed_variables,
                 "imports": parsed_imports,
                 "function_calls": parsed_calls,
@@ -248,6 +224,9 @@ class SwiftTreeSitterParser:
                             if child.type == "simple_identifier":
                                 func_name = self._get_node_text(child)
                                 break
+                            elif child.type == "type_identifier": # fallback
+                                func_name = self._get_node_text(child)
+                                break
                     
                     if not func_name:
                         continue
@@ -308,7 +287,7 @@ class SwiftTreeSitterParser:
                     # Find name
                     type_name = "Anonymous"
                     for child in node.children:
-                        if child.type == "type_identifier":
+                        if child.type in ("type_identifier", "simple_identifier"):
                             type_name = self._get_node_text(child)
                             break
                     

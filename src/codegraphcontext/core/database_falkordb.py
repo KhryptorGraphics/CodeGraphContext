@@ -377,7 +377,7 @@ class FalkorDBSessionWrapper:
         except Exception as e:
             # Ignore errors about existing constraints/indexes
             error_msg = str(e).lower()
-            if "already exists" in error_msg or "already created" in error_msg:
+            if "already exists" in error_msg or "already created" in error_msg or "already indexed" in error_msg:
                 return FalkorDBResultWrapper(None)
                 
             error_logger(f"FalkorDB query failed: {query[:100]}... Error: {e}")

@@ -137,7 +137,12 @@ class GraphWriter:
                 (file_data.get("unions", []), "Union"),
                 (file_data.get("records", []), "Record"),
                 (file_data.get("properties", []), "Property"),
+                (file_data.get("mixins", []), "Mixin"),
+                (file_data.get("extensions", []), "Extension"),
+                (file_data.get("modules", []), "Module"),
+                (file_data.get("objects", []), "Object"),
             ]
+
             params_batch: List[Dict[str, Any]] = []
             class_fn_batch: List[Dict[str, Any]] = []
             nested_fn_batch: List[Dict[str, Any]] = []
@@ -268,7 +273,8 @@ class GraphWriter:
                 session.run(
                     """
                     UNWIND $batch AS row
-                    MATCH (c:Class {name: row.class_name, path: $file_path})
+                    MATCH (c {name: row.class_name, path: $file_path})
+                    WHERE c:Class OR c:Module OR c:Interface OR c:Struct OR c:Record OR c:Trait OR c:Object OR c:Mixin
                     MATCH (fn:Function {name: row.func_name, path: $file_path, line_number: row.func_line})
                     WHERE row.class_line < 0 OR c.line_number = row.class_line
                     MERGE (c)-[:CONTAINS]->(fn)
@@ -276,6 +282,7 @@ class GraphWriter:
                     batch=class_fn_batch,
                     file_path=file_path_str,
                 )
+
 
             if nested_fn_batch:
                 session.run(
@@ -289,19 +296,8 @@ class GraphWriter:
                     file_path=file_path_str,
                 )
 
-            ruby_modules = file_data.get("modules", [])
-            if ruby_modules:
-                session.run(
-                    """
-                    UNWIND $batch AS row
-                    MERGE (mod:Module {name: row.name})
-                    ON CREATE SET mod.lang = row.lang
-                    ON MATCH  SET mod.lang = coalesce(mod.lang, row.lang)
-                """,
-                    batch=[{"name": m["name"], "lang": lang} for m in ruby_modules],
-                )
-
             js_imports = []
+
             other_imports = []
             for imp in file_data.get("imports", []):
                 if lang in {"javascript", "typescript", "tsx"}:
@@ -559,7 +555,7 @@ class GraphWriter:
                         session.run(
                             """
                             MATCH (child {name: $child_name, path: $path})
-                            WHERE child:Class OR child:Struct OR child:Record
+                            WHERE child:Class OR child:Struct OR child:Record OR child:Mixin OR child:Extension
                             MATCH (iface:Interface {name: $interface_name})
                             MERGE (child)-[:IMPLEMENTS]->(iface)
                         """,
@@ -571,9 +567,9 @@ class GraphWriter:
                         session.run(
                             """
                             MATCH (child {name: $child_name, path: $path})
-                            WHERE child:Class OR child:Record OR child:Interface
+                            WHERE child:Class OR child:Record OR child:Interface OR child:Mixin OR child:Extension
                             MATCH (parent {name: $parent_name})
-                            WHERE parent:Class OR parent:Record OR parent:Interface
+                            WHERE parent:Class OR parent:Record OR parent:Interface OR parent:Mixin OR parent:Extension
                             MERGE (child)-[:INHERITS]->(parent)
                         """,
                             child_name=type_item["name"],
@@ -592,20 +588,40 @@ class GraphWriter:
         )
         batch_size = 500
         with self.driver.session() as session:
-            for i in range(0, len(inheritance_batch), batch_size):
-                batch = inheritance_batch[i : i + batch_size]
+            internal_batch = [r for r in inheritance_batch if r.get("resolved_parent_file_path") != "__external__"]
+            external_batch = [r for r in inheritance_batch if r.get("resolved_parent_file_path") == "__external__"]
+
+            # Internal inheritance (within workspace)
+            for i in range(0, len(internal_batch), batch_size):
+                batch = internal_batch[i : i + batch_size]
                 session.run(
                     """
                     UNWIND $batch AS row
                     MATCH (child {name: row.child_name, path: row.path})
-                    WHERE child:Class OR child:Trait OR child:Interface OR child:Struct OR child:Enum OR child:Union OR child:Record
+                    WHERE child:Class OR child:Trait OR child:Interface OR child:Struct OR child:Enum OR child:Union OR child:Record OR child:Mixin OR child:Extension OR child:Module OR child:Object
                     MATCH (parent {name: row.parent_name, path: row.resolved_parent_file_path})
-                    WHERE parent:Class OR parent:Trait OR parent:Interface OR parent:Struct OR parent:Enum OR parent:Union OR parent:Record
+                    WHERE parent:Class OR parent:Trait OR parent:Interface OR parent:Struct OR parent:Enum OR parent:Union OR parent:Record OR parent:Mixin OR parent:Extension OR parent:Module OR parent:Object
                     MERGE (child)-[r:INHERITS]->(parent)
                     SET r.confidence_label = coalesce(row.confidence_label, 'EXTRACTED')
                 """,
                     batch=batch,
                 )
+
+            # External inheritance (outside workspace)
+            for i in range(0, len(external_batch), batch_size):
+                batch = external_batch[i : i + batch_size]
+                session.run(
+                    """
+                    UNWIND $batch AS row
+                    MATCH (child {name: row.child_name, path: row.path})
+                    WHERE child:Class OR child:Trait OR child:Interface OR child:Struct OR child:Enum OR child:Union OR child:Record OR child:Mixin OR child:Extension OR child:Module OR child:Object
+                    MERGE (parent:ExternalClass {name: row.parent_name})
+                    MERGE (child)-[r:INHERITS]->(parent)
+                    SET r.confidence_label = coalesce(row.confidence_label, 'INFERRED')
+                """,
+                    batch=batch,
+                )
+
 
             for file_data in csharp_files:
                 self._create_csharp_inheritance_and_interfaces(session, file_data, imports_map)
@@ -623,9 +639,9 @@ class GraphWriter:
                         session.run(
                             """
                             MATCH (caller {name: $caller_name, path: $caller_file, line_number: $caller_line})
-                            WHERE caller:Function OR caller:Variable OR caller:Class OR caller:Interface OR caller:Trait OR caller:Struct OR caller:Record OR caller:Union
+                            WHERE caller:Function OR caller:Variable OR caller:Class OR caller:Interface OR caller:Trait OR caller:Struct OR caller:Record OR caller:Union OR caller:Mixin OR caller:Extension
                             MATCH (callee {name: $callee_name, path: $callee_file})
-                            WHERE callee:Function OR callee:Class OR callee:Interface OR callee:Trait OR callee:Struct OR callee:Enum OR callee:Record OR callee:Union
+                            WHERE callee:Function OR callee:Class OR callee:Interface OR callee:Trait OR callee:Struct OR callee:Enum OR callee:Record OR callee:Union OR callee:Mixin OR callee:Extension
                             MERGE (caller)-[:CALLS {line_number: $ref_line, source: 'scip'}]->(callee)
                         """,
                             caller_name=name_from_symbol(edge["caller_symbol"]),
@@ -709,8 +725,10 @@ class GraphWriter:
             WHERE fn.path STARTS WITH $repo_path
               AND fn.class_context IS NOT NULL
               AND ({ext_conditions})
-            MATCH (c:Class {{name: fn.class_context}})
-            WHERE c.path STARTS WITH $repo_path
+            MATCH (c)
+            WHERE c.name = fn.class_context
+              AND (c:Class OR c:Struct OR c:Module)
+              AND c.path STARTS WITH $repo_path
             MERGE (c)-[:CONTAINS]->(fn)
         """
         with self.driver.session() as session:
@@ -1175,7 +1193,8 @@ class GraphWriter:
                 break
             info_logger(f"[DELETE] Removed {deleted} CONTAINS rels for {repo_path_str}")
 
-        for label in ("Function", "Class", "Interface", "Trait", "Struct", "Enum", "Variable", "Macro", "Union", "Record", "Property", "File"):
+        for label in ("Function", "Class", "Interface", "Trait", "Struct", "Enum", "Variable", "Macro", "Union", "Record", "Property", "File", "Module", "Mixin", "Extension"):
+
             while True:
                 with self.driver.session() as session:
                     result = session.run(

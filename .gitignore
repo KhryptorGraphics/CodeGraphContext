@@ -91,3 +91,5 @@ site/
 [Bb]in/
 [Oo]bj/
 target/
+venv_indexing/
+scratch/

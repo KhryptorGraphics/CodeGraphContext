@@ -1593,7 +1593,8 @@ def build_function_call_groups(
         func: Dict[str, Any],
         package_name: Optional[str],
     ) -> List[str]:
-        context_names = list(type_keys_for_maps(func.get("context"), package_name=package_name))
+        context = func.get("context") or func.get("class_context")
+        context_names = list(type_keys_for_maps(context, package_name=package_name))
         context_names.extend(companion_owner_context_names(fd, func, package_name))
         return list(dict.fromkeys(context_names))
 
@@ -1621,22 +1622,26 @@ def build_function_call_groups(
         for func in fd.get("functions", []):
             indexed_func = {**func, "path": fd["path"], "package": package_name}
             function_index.setdefault((file_path, func["name"]), []).append(indexed_func)
-            if has_kotlin:
-                context_names = function_context_names_for_maps(fd, func, package_name)
-                for context_name in context_names:
-                    class_method_names.setdefault(context_name, set()).add(func["name"])
-                    class_method_index.setdefault((context_name, func["name"]), []).append(
-                        indexed_func
-                    )
-                receiver_types = type_keys_for_maps(
-                    func.get("receiver_type"),
-                    fd_local_imports,
-                    package_name,
+            
+            # Index class methods for all languages
+            context_names = function_context_names_for_maps(fd, func, package_name)
+            for context_name in context_names:
+                class_method_names.setdefault(context_name, set()).add(func["name"])
+                class_method_index.setdefault((context_name, func["name"]), []).append(
+                    indexed_func
                 )
-                for receiver_type in receiver_types:
-                    extension_method_index.setdefault((receiver_type, func["name"]), []).append(
-                        indexed_func
-                    )
+            
+            # Extension methods (mostly Kotlin/C#)
+            receiver_types = type_keys_for_maps(
+                func.get("receiver_type"),
+                fd_local_imports,
+                package_name,
+            )
+            for receiver_type in receiver_types:
+                extension_method_index.setdefault((receiver_type, func["name"]), []).append(
+                    indexed_func
+                )
+
         for variable in fd.get("variables", []):
             if variable.get("context"):
                 continue
@@ -2413,6 +2418,48 @@ def build_function_call_groups(
                 resolved["called_label"] = file_symbol_labels.get(called_fp, {}).get(called_name, "Function")
 
             resolved_calls.append(resolved)
+
+        # Resolve Python decorators as virtual calls
+        if caller_lang == "python":
+            for func in file_data.get("functions", []):
+                for dec_raw in func.get("decorators", []):
+                    # dec_raw is e.g. "@my_decorator" or "@my_decorator(arg)"
+                    dec_name = dec_raw.lstrip("@").split("(")[0].strip()
+                    if not dec_name:
+                        continue
+                    
+                    virtual_call = {
+                        "name": dec_name,
+                        "line_number": func["line_number"],
+                        "context": (func["name"], "function_definition", func["line_number"]),
+                        "class_context": func.get("class_context"),
+                        "full_name": dec_name,
+                        "args": [],
+                        "call_kind": "decorator",
+                    }
+                    
+                    resolved_dec = resolve_function_call(
+                        virtual_call,
+                        caller_file_path,
+                        local_names,
+                        local_imports,
+                        effective_imports_map,
+                        skip_external,
+                        local_class_bases=local_class_bases,
+                        member_return_types=member_return_types,
+                        member_property_types=member_property_types,
+                        type_aliases=type_aliases,
+                        global_class_bases=global_class_bases,
+                        class_method_names=class_method_names,
+                        function_index=function_index,
+                        class_index=class_index,
+                        class_method_index=class_method_index,
+                        extension_method_index=extension_method_index,
+                        diagnostics=diagnostics,
+                    )
+                    if resolved_dec:
+                        resolved_calls.append(resolved_dec)
+
 
         if (idx + 1) % 1000 == 0:
             info_logger(f"[CALLS] Resolved {idx + 1}/{len(all_file_data)} files... ({len(resolved_calls)} calls)")
