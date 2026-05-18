@@ -545,6 +545,18 @@ class GraphWriter:
                     if "line_number" not in row or row["line_number"] is None:
                         row["line_number"] = 0
                     
+                    # Serialize args to a deterministic string for the MERGE key.
+                    # FalkorDB can't match list-typed properties in MERGE (creates
+                    # duplicates), but removing args entirely caused Neo4j to
+                    # merge distinct calls.  A serialized string gives universal
+                    # scalar comparison across all backends.
+                    import json as _json
+                    raw_args = row.get("args") or []
+                    if isinstance(raw_args, list):
+                        row["args_key"] = _json.dumps(raw_args, sort_keys=False)
+                    else:
+                        row["args_key"] = str(raw_args)
+                    
                     sanitized_batch.append(row)
 
                 if not sanitized_batch:
@@ -564,7 +576,7 @@ class GraphWriter:
                         MATCH (called:{called_label} {{name: row.called_name, path: row.called_file_path}})
                         WHERE (row.called_line_number <= 0 OR called.line_number = row.called_line_number)
                           {called_context_clause}
-                        MERGE (caller)-[call:CALLS {{line_number: row.line_number, full_call_name: row.full_call_name}}]->(called)
+                        MERGE (caller)-[call:CALLS {{line_number: row.line_number, full_call_name: row.full_call_name, args_key: row.args_key}}]->(called)
                         SET call.args = row.args
                         SET call.confidence = row.confidence
                         SET call.resolution_tier = row.resolution_tier
@@ -577,7 +589,7 @@ class GraphWriter:
                         MATCH (called:{called_label} {{name: row.called_name, path: row.called_file_path}})
                         WHERE (row.called_line_number <= 0 OR called.line_number = row.called_line_number)
                           {called_context_clause}
-                        MERGE (caller)-[call:CALLS {{line_number: row.line_number, full_call_name: row.full_call_name}}]->(called)
+                        MERGE (caller)-[call:CALLS {{line_number: row.line_number, full_call_name: row.full_call_name, args_key: row.args_key}}]->(called)
                         SET call.args = row.args
                         SET call.confidence = row.confidence
                         SET call.resolution_tier = row.resolution_tier

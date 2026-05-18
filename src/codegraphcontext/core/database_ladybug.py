@@ -176,7 +176,7 @@ class LadybugDBManager:
                 FROM File TO Function, FROM File TO Class, FROM File TO Interface, FROM File TO Trait, 
                 FROM File TO Struct, FROM File TO Enum, FROM File TO Record, FROM File TO `Union`,
                 FROM Variable TO Function, FROM Variable TO Class, FROM Variable TO Interface,
-                line_number INT64, args STRING[], full_call_name STRING, confidence DOUBLE, resolution_tier INT64, 
+                line_number INT64, args STRING[], full_call_name STRING, args_key STRING, confidence DOUBLE, resolution_tier INT64, 
                 confidence_label STRING, source STRING, resolution_method STRING, called_name STRING
             """, True),
             ("IMPORTS", "FROM File TO Module, alias STRING, full_import_name STRING, imported_name STRING, line_number INT64", False),
@@ -268,6 +268,7 @@ class LadybugDBManager:
             ("source", "STRING"),
             ("resolution_method", "STRING"),
             ("called_name", "STRING"),
+            ("args_key", "STRING"),
         ]:
             for sub in _CALLS_SUBTABLES:
                 group_migrations.append((sub, col_name, col_type))
