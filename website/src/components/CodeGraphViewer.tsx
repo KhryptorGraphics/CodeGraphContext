@@ -311,8 +311,8 @@ function TreeItem({
     <button
       onClick={() => onFileClick(node.path)}
       className={`w-full flex items-center gap-2 py-[3px] px-2 rounded-lg text-[13px] transition-all group ${isSelected
-          ? 'bg-blue-500/20 text-blue-200 border border-blue-500/20'
-          : 'text-gray-400 hover:text-gray-200 hover:bg-white/5 border border-transparent'
+        ? 'bg-blue-500/20 text-blue-200 border border-blue-500/20'
+        : 'text-gray-400 hover:text-gray-200 hover:bg-white/5 border border-transparent'
         }`}
       style={{ paddingLeft: `${indent + 20}px` }}
     >
@@ -336,7 +336,9 @@ function clamp(value: number, min: number, max: number): number {
 
 function getGraphAwareNodeScale(totalNodes: number): number {
   const safeNodeCount = Math.max(totalNodes, 1);
-  return clamp(1 + Math.log10(safeNodeCount) * 0.22, 1, 2);
+  // High node count = smaller nodes to prevent overlap and visual clutter
+  // Low node count = larger, more prominent nodes for readability
+  return clamp(2.5 / (1 + Math.log10(safeNodeCount) * 0.95), 0.45, 2.5);
 }
 
 export default function CodeGraphViewer({ data, onClose }: { data: any, onClose: () => void }) {
@@ -391,7 +393,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
 
   // Sidebar resize / collapse
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_W);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
   const isResizing = useRef(false);
   const resizeStartX = useRef(0);
   const resizeStartW = useRef(DEFAULT_SIDEBAR_W);
@@ -781,7 +783,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
         const pts = new Float32Array(CITY_ARC_SEGMENTS * 3);
         for (let i = 0; i < CITY_ARC_SEGMENTS; i++) {
           const t = i / (CITY_ARC_SEGMENTS - 1);
-          pts[i * 3]     = arc.sx + dx * t;
+          pts[i * 3] = arc.sx + dx * t;
           pts[i * 3 + 2] = arc.sz + dz * t;
           // Quadratic bezier Y: start rooftop → peak → end rooftop
           pts[i * 3 + 1] = (1 - t) * (1 - t) * arc.sy + 2 * (1 - t) * t * peakY + t * t * arc.ty;
@@ -1025,8 +1027,8 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
     const tId = pathTarget.id;
 
     const adj = new Map<any, Set<any>>();
-    const edgeMap = new Map<string, any>(); 
-    
+    const edgeMap = new Map<string, any>();
+
     for (const link of filteredData.links) {
       const u = typeof link.source === 'object' ? link.source.id : link.source;
       const v = typeof link.target === 'object' ? link.target.id : link.target;
@@ -1034,7 +1036,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
       if (!adj.has(v)) adj.set(v, new Set());
       adj.get(u)!.add(v);
       adj.get(v)!.add(u);
-      
+
       edgeMap.set(`${u}-${v}`, link);
       edgeMap.set(`${v}-${u}`, link);
     }
@@ -1071,7 +1073,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
     setPathError(null);
     const pathNodes = new Set<number>();
     const pathLinks = new Set<any>();
-    
+
     let curr = tId;
     pathNodes.add(curr);
     while (curr !== sId) {
@@ -1110,8 +1112,8 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
     return baseColor;
   }, [focusSet, edgeColors, graphMode]);
 
-  const effectiveSidebarW = collapsed ? 0 : sidebarWidth;
-  const effectiveCodePanelW = selectedFile ? codePanelWidth : 0;
+  const effectiveSidebarW = (collapsed || dimensions.width < 768) ? 0 : sidebarWidth;
+  const effectiveCodePanelW = (selectedFile === null || dimensions.width < 768) ? 0 : codePanelWidth;
 
   return (
     <motion.div
@@ -1122,9 +1124,15 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
       style={{ backgroundColor: pal.bg }}
     >
       {/* ── SIDEBAR ── */}
+      {!collapsed && dimensions.width < 768 && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[85]"
+          onClick={() => setCollapsed(true)}
+        />
+      )}
       <div
-        className="relative h-full flex-shrink-0 flex"
-        style={{ width: collapsed ? 0 : sidebarWidth, transition: isResizing.current ? 'none' : 'width 0.2s ease' }}
+        className={`h-full flex-shrink-0 flex ${dimensions.width < 768 ? 'absolute left-0 top-0 z-[90]' : 'relative'}`}
+        style={{ width: collapsed ? 0 : (dimensions.width < 768 ? Math.min(sidebarWidth, dimensions.width * 0.85) : sidebarWidth), transition: isResizing.current ? 'none' : 'width 0.2s ease' }}
       >
         <AnimatePresence>
           {!collapsed && (
@@ -1204,7 +1212,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
                       <Route className="w-3 h-3" /> Path Traversal
                     </h3>
                     <p className="text-xs text-gray-400">Select two nodes in the graph to find the shortest path between them.</p>
-                    
+
                     <div className="space-y-3 mt-4">
                       <div className="flex flex-col gap-1">
                         <label className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Source Node</label>
@@ -1212,7 +1220,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
                           {pathSource ? pathSource.name : "Click a node in the graph..."}
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-col gap-1">
                         <label className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Target Node</label>
                         <div className={`text-sm px-3 py-2 rounded-lg border ${pathTarget ? (isDark ? 'bg-white/5 border-white/10 text-white' : 'bg-black/5 border-black/10 text-black') : 'bg-transparent border-dashed border-gray-600 text-gray-500'}`}>
@@ -1226,11 +1234,11 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
                         {pathError}
                       </div>
                     )}
-                    
+
                     <div className="flex gap-2 mt-4">
-                      <Button 
-                        size="sm" 
-                        variant="secondary" 
+                      <Button
+                        size="sm"
+                        variant="secondary"
                         className="w-full text-xs"
                         onClick={() => {
                           setPathSource(null);
@@ -1241,8 +1249,8 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
                       >
                         Clear
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         className="w-full text-xs bg-indigo-500 hover:bg-indigo-600 text-white"
                         disabled={!pathSource || !pathTarget}
                         onClick={calculatePath}
@@ -1343,7 +1351,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
         </AnimatePresence>
 
         {/* ── Drag Handle ── */}
-        {!collapsed && (
+        {!collapsed && dimensions.width >= 768 && (
           <div
             onMouseDown={onDragStart}
             className="absolute right-0 top-0 h-full w-1 cursor-col-resize z-[80] group flex items-center justify-center"
@@ -1402,11 +1410,10 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
                     <button
                       key={mode.id}
                       onClick={() => { setGraphMode(mode.id); setShowModeMenu(false); }}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all cursor-pointer ${
-                        graphMode === mode.id
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all cursor-pointer ${graphMode === mode.id
                           ? (isDark ? 'bg-white/10 text-white' : 'bg-black/10 text-black')
                           : (isDark ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-black/5')
-                      }`}
+                        }`}
                     >
                       <div
                         className="w-3 h-3 rounded-full flex-shrink-0"
@@ -1555,8 +1562,8 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
             linkColor={getLinkColor}
             linkWidth={
               graphMode === 'galaxy' ? 0.7
-              : graphMode === 'neon' ? lineWidth * 1.2
-              : lineWidth
+                : graphMode === 'neon' ? lineWidth * 1.2
+                  : lineWidth
             }
             linkDirectionalParticles={
               graphMode === 'galaxy'
@@ -1589,7 +1596,7 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
         {!showConfig && (
           <div
             className={`absolute bottom-6 z-[60] backdrop-blur-3xl border rounded-2xl shadow-2xl pointer-events-auto ${isDark ? 'bg-black/50 border-white/10' : 'bg-white/80 border-black/10'}`}
-            style={{ right: selectedFile ? codePanelWidth + 24 : 24 }}
+            style={{ right: (selectedFile && dimensions.width >= 768) ? codePanelWidth + 24 : 24 }}
           >
             <div
               className={`flex items-center justify-between px-5 pt-4 ${legendCollapsed ? 'pb-4' : 'pb-2'} cursor-pointer transition-colors rounded-t-2xl ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
@@ -1631,139 +1638,149 @@ export default function CodeGraphViewer({ data, onClose }: { data: any, onClose:
       {/* ── CODE VIEWER PANEL ── */}
       <AnimatePresence>
         {selectedFile && (
-          <motion.div
-            key="code-panel"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: codePanelWidth, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="relative h-full flex-shrink-0 flex z-[70] shadow-2xl overflow-hidden"
-            style={{ backgroundColor: pal.panelBg, borderLeft: `1px solid ${pal.border}` }}
-          >
-            {/* drag handle (left edge) */}
-            <div
-              onMouseDown={onCodeDragStart}
-              className="absolute left-0 top-0 h-full w-1 cursor-col-resize z-[80] group flex items-center justify-center"
+          <>
+            {dimensions.width < 768 && (
+              <div
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[85]"
+                onClick={() => onFileClick(null)}
+              />
+            )}
+            <motion.div
+              key="code-panel"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: dimensions.width < 768 ? Math.min(codePanelWidth, dimensions.width * 0.85) : codePanelWidth, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`h-full flex-shrink-0 flex z-[90] shadow-2xl overflow-hidden ${dimensions.width < 768 ? 'absolute right-0 top-0' : 'relative'}`}
+              style={{ backgroundColor: pal.panelBg, borderLeft: `1px solid ${pal.border}` }}
             >
-              <div className="w-0.5 h-full bg-white/5 group-hover:bg-blue-500/50 transition-colors duration-150" />
-            </div>
-
-            <div className="flex flex-col w-full overflow-hidden">
-              {/* header */}
-              <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: `1px solid ${pal.border}` }}>
-                <div className="flex items-center gap-2 min-w-0">
-                  <Code2 className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                  <span className="text-[13px] font-bold truncate" style={{ color: pal.text }}>
-                    {selectedFile.split('/').pop()}
-                  </span>
-                </div>
-                <button
-                  onClick={() => onFileClick(null)}
-                  className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${isDark ? 'text-gray-500 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-black hover:bg-black/10'}`}
+              {/* drag handle (left edge) */}
+              {dimensions.width >= 768 && (
+                <div
+                  onMouseDown={onCodeDragStart}
+                  className="absolute left-0 top-0 h-full w-1 cursor-col-resize z-[80] group flex items-center justify-center"
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+                  <div className="w-0.5 h-full bg-white/5 group-hover:bg-blue-500/50 transition-colors duration-150" />
+                </div>
+              )}
 
-              {/* path breadcrumb + tabs */}
-              <div className="flex items-center gap-0 px-4 py-0 text-[10px] font-mono flex-shrink-0" style={{ borderBottom: `1px solid ${pal.border}` }}>
-                <span className="text-gray-500 truncate flex-1 py-1.5">{selectedFile}</span>
-                <div className="flex ml-2 flex-shrink-0">
+              <div className="flex flex-col w-full overflow-hidden">
+                {/* header */}
+                <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: `1px solid ${pal.border}` }}>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Code2 className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                    <span className="text-[13px] font-bold truncate" style={{ color: pal.text }}>
+                      {selectedFile.split('/').pop()}
+                    </span>
+                  </div>
                   <button
-                    onClick={() => setCodePanelTab('code')}
-                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${codePanelTab === 'code' ? 'text-blue-400 border-b-2 border-blue-400' : (isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600')}`}
+                    onClick={() => onFileClick(null)}
+                    className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${isDark ? 'text-gray-500 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-black hover:bg-black/10'}`}
                   >
-                    Code
-                  </button>
-                  <button
-                    onClick={() => setCodePanelTab('entities')}
-                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${codePanelTab === 'entities' ? 'text-blue-400 border-b-2 border-blue-400' : (isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600')}`}
-                  >
-                    Entities
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
 
-              {/* body */}
-              <div ref={codeBodyRef} className="flex-1 overflow-auto custom-scrollbar">
-                {codePanelTab === 'code' ? (
-                  codeContent !== null ? (
-                    <pre className={`p-4 text-[12px] leading-[1.65] font-mono whitespace-pre overflow-x-auto ${isDark ? 'text-gray-300' : 'text-gray-800'}`}>
-                      {codeContent.split('\n').map((line, i) => {
-                        const lineNum = i + 1;
-                        const isHL = highlightLine === lineNum;
-                        return (
-                          <div
-                            key={i}
-                            data-line={lineNum}
-                            className={`flex ${isHL ? (isDark ? 'bg-yellow-400/10' : 'bg-yellow-300/20') : (isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-black/[0.03]')}`}
-                          >
-                            <span className={`inline-block w-10 text-right pr-4 select-none flex-shrink-0 ${isHL ? 'text-yellow-400 font-bold' : (isDark ? 'text-gray-600' : 'text-gray-400')}`}>{lineNum}</span>
-                            <span>{line || ' '}</span>
-                          </div>
-                        );
-                      })}
-                    </pre>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-40 text-gray-500 text-[12px]">
-                      <p>{codeError || 'No source available'}</p>
-                    </div>
-                  )
-                ) : (
-                  <div className="p-4">
-                    <div className="space-y-1">
-                      {fileEntities.map((n: any) => {
-                        const lineNum = n.line_number ?? n.properties?.line_number;
-                        return (
-                          <>
-                            <div
-                              key={n.id}
-                              onClick={() => { if (lineNum && codeContent) { setHighlightLine(Number(lineNum)); setCodePanelTab('code'); } }}
-                              className={`flex items-center gap-2 py-1.5 px-2 rounded-lg ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'} ${lineNum && codeContent ? 'cursor-pointer' : ''}`}
-                            >
-                              {graphMode === 'icon' ? (
-                                <span className="text-[14px] flex-shrink-0">{EMOJI_MAP[n.type] || '❓'}</span>
-                              ) : (
-                                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: nodeColors[n.type] || '#78909c' }} />
-                              )}
-                              <span className="text-[12px] font-medium truncate" style={{ color: pal.textSecondary }}>{n.name}</span>
-                              <div className="flex items-center gap-1.5 ml-auto flex-shrink-0">
-                                {n.complexity && (
-                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${n.complexity > 10 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}>
-                                    C:{n.complexity}
-                                  </span>
-                                )}
-                                <span className="text-[9px] uppercase tracking-wider" style={{ color: pal.dimText }}>
-                                  {n.type}{lineNum ? `:${lineNum}` : ''}
-                                </span>
-                              </div>
-                            </div>
-                            {n.decorators?.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-1 px-2">
-                                {n.decorators.map((d: string, i: number) => (
-                                  <span key={i} className="text-[8px] px-1 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">@{d.replace(/^@/, '')}</span>
-                                ))}
-                              </div>
-                            )}
-                            {n.docstring && (
-                              <div className="mt-1 px-2 text-[9px] text-gray-500 line-clamp-2 italic">
-                                "{n.docstring}"
-                              </div>
-                            )}
-                          </>
-                        );
-                      })}
-                    </div>
+                {/* path breadcrumb + tabs */}
+                <div className="flex items-center gap-0 px-4 py-0 text-[10px] font-mono flex-shrink-0" style={{ borderBottom: `1px solid ${pal.border}` }}>
+                  <span className="text-gray-500 truncate flex-1 py-1.5">{selectedFile}</span>
+                  <div className="flex ml-2 flex-shrink-0">
+                    <button
+                      onClick={() => setCodePanelTab('code')}
+                      className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${codePanelTab === 'code' ? 'text-blue-400 border-b-2 border-blue-400' : (isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600')}`}
+                    >
+                      Code
+                    </button>
+                    <button
+                      onClick={() => setCodePanelTab('entities')}
+                      className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${codePanelTab === 'entities' ? 'text-blue-400 border-b-2 border-blue-400' : (isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600')}`}
+                    >
+                      Entities
+                    </button>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* footer */}
-              <div className={`px-4 py-2 text-[10px] text-gray-500 uppercase tracking-widest font-black flex-shrink-0 ${isDark ? 'border-t border-white/5 bg-black/40' : 'border-t border-black/5 bg-gray-50'}`}>
-                {fileEntities.length} entities
+                {/* body */}
+                <div ref={codeBodyRef} className="flex-1 overflow-auto custom-scrollbar">
+                  {codePanelTab === 'code' ? (
+                    codeContent !== null ? (
+                      <pre className={`p-4 text-[12px] leading-[1.65] font-mono whitespace-pre overflow-x-auto ${isDark ? 'text-gray-300' : 'text-gray-800'}`}>
+                        {codeContent.split('\n').map((line, i) => {
+                          const lineNum = i + 1;
+                          const isHL = highlightLine === lineNum;
+                          return (
+                            <div
+                              key={i}
+                              data-line={lineNum}
+                              className={`flex ${isHL ? (isDark ? 'bg-yellow-400/10' : 'bg-yellow-300/20') : (isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-black/[0.03]')}`}
+                            >
+                              <span className={`inline-block w-10 text-right pr-4 select-none flex-shrink-0 ${isHL ? 'text-yellow-400 font-bold' : (isDark ? 'text-gray-600' : 'text-gray-400')}`}>{lineNum}</span>
+                              <span>{line || ' '}</span>
+                            </div>
+                          );
+                        })}
+                      </pre>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-40 text-gray-500 text-[12px]">
+                        <p>{codeError || 'No source available'}</p>
+                      </div>
+                    )
+                  ) : (
+                    <div className="p-4">
+                      <div className="space-y-1">
+                        {fileEntities.map((n: any) => {
+                          const lineNum = n.line_number ?? n.properties?.line_number;
+                          return (
+                            <>
+                              <div
+                                key={n.id}
+                                onClick={() => { if (lineNum && codeContent) { setHighlightLine(Number(lineNum)); setCodePanelTab('code'); } }}
+                                className={`flex items-center gap-2 py-1.5 px-2 rounded-lg ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'} ${lineNum && codeContent ? 'cursor-pointer' : ''}`}
+                              >
+                                {graphMode === 'icon' ? (
+                                  <span className="text-[14px] flex-shrink-0">{EMOJI_MAP[n.type] || '❓'}</span>
+                                ) : (
+                                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: nodeColors[n.type] || '#78909c' }} />
+                                )}
+                                <span className="text-[12px] font-medium truncate" style={{ color: pal.textSecondary }}>{n.name}</span>
+                                <div className="flex items-center gap-1.5 ml-auto flex-shrink-0">
+                                  {n.complexity && (
+                                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${n.complexity > 10 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}>
+                                      C:{n.complexity}
+                                    </span>
+                                  )}
+                                  <span className="text-[9px] uppercase tracking-wider" style={{ color: pal.dimText }}>
+                                    {n.type}{lineNum ? `:${lineNum}` : ''}
+                                  </span>
+                                </div>
+                              </div>
+                              {n.decorators?.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1 px-2">
+                                  {n.decorators.map((d: string, i: number) => (
+                                    <span key={i} className="text-[8px] px-1 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">@{d.replace(/^@/, '')}</span>
+                                  ))}
+                                </div>
+                              )}
+                              {n.docstring && (
+                                <div className="mt-1 px-2 text-[9px] text-gray-500 line-clamp-2 italic">
+                                  "{n.docstring}"
+                                </div>
+                              )}
+                            </>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* footer */}
+                <div className={`px-4 py-2 text-[10px] text-gray-500 uppercase tracking-widest font-black flex-shrink-0 ${isDark ? 'border-t border-white/5 bg-black/40' : 'border-t border-black/5 bg-gray-50'}`}>
+                  {fileEntities.length} entities
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.div>

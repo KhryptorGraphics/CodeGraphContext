@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sparkles, ArrowLeft, Github } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 function handleScroll(e: React.MouseEvent<HTMLAnchorElement>) {
   const href = e.currentTarget.getAttribute('href');
@@ -29,14 +30,17 @@ const Navbar: React.FC = () => {
         }}
       >
         {/* Left: Brand Logo & Title */}
-        <Link to="/" className="flex items-center gap-2.5 mr-4 shrink-0 group">
+        <Link to="/" className="flex items-center gap-2 mr-3 shrink-0 group">
           <img
             src="/cgcIcon.png"
             className="w-8 h-8 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] group-hover:scale-105 transition-transform duration-300"
             alt="CodeGraphContext Logo"
           />
-          <span className="font-extrabold text-base md:text-lg bg-gradient-primary bg-clip-text text-transparent tracking-tight">
+          <span className="font-extrabold text-base md:text-lg bg-gradient-primary bg-clip-text text-transparent tracking-tight hidden sm:inline-block">
             CodeGraphContext
+          </span>
+          <span className="font-extrabold text-base bg-gradient-primary bg-clip-text text-transparent tracking-tight sm:hidden">
+            CGC
           </span>
         </Link>
 
@@ -101,21 +105,24 @@ const Navbar: React.FC = () => {
         ) : null}
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2 md:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
+          <ThemeToggle />
           {isLandingPage ? (
             <>
               <a
                 href="https://github.com/CodeGraphContext/CodeGraphContext"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full hover:bg-white/5 text-muted-foreground hover:text-white transition-colors duration-200"
+                className="p-2 rounded-full hover:bg-white/5 text-muted-foreground hover:text-white transition-colors duration-200 hidden sm:flex"
                 title="View GitHub Repository"
               >
                 <Github className="w-5 h-5" />
               </a>
               <Link to="/explore">
-                <button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-1.5 shadow-[0_0_15px_rgba(59,130,246,0.35)] border-none transition-all duration-300 hover:scale-105">
-                  Launch Explorer <Sparkles className="w-3.5 h-3.5" />
+                <button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-[10px] sm:text-xs md:text-sm px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-full flex items-center gap-1 shadow-[0_0_15px_rgba(59,130,246,0.35)] border-none transition-all duration-300 hover:scale-105">
+                  <span className="hidden sm:inline">Launch Explorer</span>
+                  <span className="sm:hidden">Explore</span>
+                  <Sparkles className="w-3.5 h-3.5" />
                 </button>
               </Link>
             </>

@@ -60,22 +60,13 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-x-hidden py-12 md:py-0">
       <motion.div
         key="hero"
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.4 }}
         className="absolute inset-0 w-full h-full"
       >
-        {/* Header with Theme Toggle */}
-        <div className="absolute top-0 left-0 right-0 z-20 p-4" data-aos="fade-down">
-          <div className="container mx-auto flex justify-end">
-            <div className="rounded-full bg-white/60 backdrop-blur-md border border-gray-200 shadow-sm p-2 dark:bg-transparent dark:border-transparent dark:shadow-none">
-              <ThemeToggle />
-            </div>
-          </div>
-        </div>
-
         {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 brightness-110 saturate-110 dark:opacity-30 dark:brightness-100 dark:saturate-100"
@@ -86,7 +77,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/80 dark:from-background/90 dark:via-background/80 dark:to-background/90" />
 
         {/* Content (2-Column Grid) */}
-        <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-6 pt-32 pb-20 flex flex-col justify-center">
+        <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-6 pt-24 md:pt-32 pb-16 md:pb-20 flex flex-col justify-center">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
             {/* LEFT COLUMN: Explore CTA instead of LocalUploader */}
@@ -133,11 +124,11 @@ const HeroSection = () => {
               <p className="text-xl md:text-2xl text-muted-foreground mb-3 leading-relaxed max-w-2xl">
                 A powerful CLI toolkit &amp; MCP server that indexes local code into a
               </p>
-              <p className="text-xl md:text-2xl text-accent font-semibold mb-10">
+              <p className="text-xl md:text-2xl text-accent font-semibold mb-6 sm:mb-10">
                 knowledge graph for AI assistants
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 items-start mb-12">
+              <div className="flex flex-col sm:flex-row gap-4 items-start mb-6 sm:mb-12">
                 <Button 
                   size="lg" 
                   className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-800 text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-glow ring-1 ring-primary/20 dark:bg-gradient-primary cursor-pointer w-full sm:w-auto min-w-[280px] h-14 text-lg rounded-xl"

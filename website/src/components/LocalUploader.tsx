@@ -338,11 +338,11 @@ export default function LocalUploader({ onComplete }: { onComplete: (data: unkno
     <div className="flex flex-col p-6 w-full h-full min-h-[400px] border border-white/10 dark:border-white/20 rounded-[2rem] bg-black/40 backdrop-blur-xl shadow-2xl relative overflow-hidden">
       
       {/* Tab Selectors */}
-      <div className="flex bg-white/5 p-1.5 rounded-2xl mb-6 relative z-10 w-full shadow-inner border border-white/5">
-        <button onClick={() => setActiveTab('folder')} className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'folder' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>Folder</button>
-        <button onClick={() => setActiveTab('zip')} className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'zip' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>ZIP</button>
-        <button onClick={() => setActiveTab('cgc')} className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'cgc' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>CGC Bundle</button>
-        <button onClick={() => setActiveTab('github')} className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'github' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>GitHub</button>
+      <div className="grid grid-cols-2 sm:flex bg-white/5 p-1.5 rounded-2xl mb-6 relative z-10 w-full shadow-inner border border-white/5 gap-1 sm:gap-0">
+        <button onClick={() => setActiveTab('folder')} className={`py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'folder' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>Folder</button>
+        <button onClick={() => setActiveTab('zip')} className={`py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'zip' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>ZIP</button>
+        <button onClick={() => setActiveTab('cgc')} className={`py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'cgc' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>CGC Bundle</button>
+        <button onClick={() => setActiveTab('github')} className={`py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 ${activeTab === 'github' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>GitHub</button>
       </div>
 
       {/* Indexer Mode Toggle Selector */}
@@ -357,7 +357,7 @@ export default function LocalUploader({ onComplete }: { onComplete: (data: unkno
             </span>
           </div>
           
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button 
               onClick={() => setIndexerMode('fast')} 
               className={`p-3 rounded-xl border text-left transition-all duration-300 flex flex-col gap-1 ${indexerMode === 'fast' ? 'bg-white/10 border-purple-500/50 text-white shadow-lg' : 'bg-transparent border-white/5 text-gray-400 hover:text-white hover:bg-white/5'}`}

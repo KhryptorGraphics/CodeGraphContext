@@ -126,9 +126,101 @@ const Explore = () => {
     const autoFetchAndIndex = async () => {
       setLoading(true);
       setError(null);
+      
+      let files: any[] = [];
+      let fileContents: Record<string, string> = {};
+      let method2Success = false;
+
       try {
-        // --- LIVE CODE INDEXING FLOW ---
-        setProgressText("Downloading repository zip archive...");
+        // --- METHOD 2: FAST CDN FLOW ---
+        setProgressText("Fetching repository structure from GitHub...");
+        setProgressValue(5);
+        
+        let treeResponse: Response;
+        let activeBranch = "main";
+        
+        try {
+          treeResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=true`);
+          if (!treeResponse.ok) throw new Error("main branch not found or rate limited");
+        } catch (e) {
+          activeBranch = "master";
+          treeResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/master?recursive=true`);
+          if (!treeResponse.ok) {
+            throw new Error(`Failed to fetch tree from GitHub REST API (Status ${treeResponse.status})`);
+          }
+        }
+        
+        const treeData = await treeResponse.json();
+        if (!treeData || !Array.isArray(treeData.tree)) {
+          throw new Error("Invalid tree data received from GitHub");
+        }
+        
+        // Filter files matching our source-code pattern
+        const candidateFiles = treeData.tree.filter((item: any) => 
+          item.type === "blob" &&
+          item.path.match(/\.(js|ts|jsx|tsx|py|c|h|cpp|hpp|cc|cs|go|rs|rb|php|swift|kt|kts|dart)$/) &&
+          !isPathIgnored(item.path)
+        );
+        
+        if (candidateFiles.length === 0) {
+          throw new Error("No parseable code files found in the repository tree.");
+        }
+        
+        setProgressText(`Found ${candidateFiles.length} code files. Downloading in parallel...`);
+        setProgressValue(15);
+        
+        // Download files in parallel with paced batching to avoid overloading browser connections
+        const BATCH_SIZE = 15;
+        let downloadedCount = 0;
+        
+        for (let i = 0; i < candidateFiles.length; i += BATCH_SIZE) {
+          const batch = candidateFiles.slice(i, i + BATCH_SIZE);
+          
+          await Promise.all(
+            batch.map(async (file: any) => {
+              const fileUrl = `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${activeBranch}/${file.path}`;
+              try {
+                const fileRes = await fetch(fileUrl);
+                if (!fileRes.ok) throw new Error(`Status ${fileRes.status}`);
+                const content = await fileRes.text();
+                files.push({ path: file.path, content });
+                fileContents[file.path] = content;
+              } catch (err) {
+                // If jsDelivr fails, try a direct raw github fallback
+                try {
+                  const fallbackUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${activeBranch}/${file.path}`;
+                  const fileRes = await fetch(fallbackUrl);
+                  if (!fileRes.ok) throw new Error(`Status ${fileRes.status}`);
+                  const content = await fileRes.text();
+                  files.push({ path: file.path, content });
+                  fileContents[file.path] = content;
+                } catch (e2) {
+                  console.warn(`Failed to fetch file content for ${file.path}:`, err, e2);
+                }
+              } finally {
+                downloadedCount++;
+                const progress = 15 + Math.min(35, Math.floor((downloadedCount / candidateFiles.length) * 35));
+                setProgressText(`Downloading files (${downloadedCount}/${candidateFiles.length})...`);
+                setProgressValue(progress);
+              }
+            })
+          );
+        }
+        
+        if (files.length === 0) {
+          throw new Error("Failed to download any code files from the CDN.");
+        }
+        
+        method2Success = true;
+        console.log(`[Method 2] Successfully downloaded ${files.length} files from CDN.`);
+        
+      } catch (method2Err: any) {
+        console.warn("[Method 2] Failed, falling back to ZIP archive flow...", method2Err);
+        files = [];
+        fileContents = {};
+        
+        // --- METHOD 1: FALLBACK ZIP FLOW ---
+        setProgressText("Falling back: downloading repository zip archive...");
         setProgressValue(10);
         
         let response;
@@ -139,13 +231,16 @@ const Explore = () => {
           const fallbackZipUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/master.zip`;
           response = await fetchWithFallbackProxies(fallbackZipUrl);
         }
+        
+        if (!response.ok) {
+          throw new Error(`Failed to download repository archive (Status ${response.status})`);
+        }
 
         setProgressText("Unzipping archive in-memory...");
         setProgressValue(30);
         const buffer = await response.arrayBuffer();
         const jszip = await JSZip.loadAsync(buffer);
         
-        const files: any[] = [];
         const promises: Promise<void>[] = [];
         
         jszip.forEach((path, entry) => {
@@ -154,6 +249,7 @@ const Explore = () => {
             path.match(/\.(js|ts|jsx|tsx|py|c|h|cpp|hpp|cc|cs|go|rs|rb|php|swift|kt|kts|dart)$/) && 
             !isPathIgnored(path)
           ) {
+            
             promises.push(
               entry.async("text").then((content) => {
                 const cleanPath = path.substring(path.indexOf("/") + 1);
@@ -171,11 +267,13 @@ const Explore = () => {
         setProgressValue(45);
         await Promise.all(promises);
 
-        const fileContents: Record<string, string> = {};
         for (const f of files) {
           fileContents[f.path] = f.content;
         }
+      }
 
+      // --- COMMON SEMANTIC INDEXING PHASE ---
+      try {
         setProgressText("Initializing WebAssembly semantic engine...");
         setProgressValue(60);
         
@@ -369,24 +467,107 @@ const Explore = () => {
   if (loading) {
     const isAutoIndexing = owner && repo && owner.toLowerCase() !== "explore";
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-center px-6 max-w-md mx-auto">
-        <Loader2 className="w-14 h-14 animate-spin text-purple-500 mb-6 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]" />
-        <p className="text-lg font-medium text-white mb-4 animate-pulse">
-          {isAutoIndexing 
-            ? progressText 
-            : (bundleUrl ? "Downloading and parsing pre-indexed CGC bundle..." : "Connecting to local database...")}
-        </p>
-        {isAutoIndexing && (
-          <div className="w-full bg-gray-800 rounded-full h-2 mt-2 overflow-hidden shadow-inner border border-white/5">
-            <div 
-              className="bg-gradient-to-r from-purple-400 to-indigo-400 h-2 rounded-full transition-all duration-300 ease-out" 
-              style={{ width: `${progressValue}%`, boxShadow: '0 0 15px rgba(168, 85, 247, 0.8)' }}
-            />
-          </div>
-        )}
-        {isAutoIndexing && (
-          <p className="text-xs text-gray-400 font-mono mt-3">{progressValue}%</p>
-        )}
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-center px-6 w-full relative overflow-hidden">
+        {/* Glow ambient background effects */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
+        
+        <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center relative z-10">
+          <Loader2 className="w-14 h-14 animate-spin text-purple-500 mb-6 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]" />
+          <p className="text-lg font-medium text-white mb-4 animate-pulse">
+            {isAutoIndexing 
+              ? progressText 
+              : (bundleUrl ? "Downloading and parsing pre-indexed CGC bundle..." : "Connecting to local database...")}
+          </p>
+          {isAutoIndexing && (
+            <div className="w-full bg-gray-800 rounded-full h-2 mt-2 overflow-hidden shadow-inner border border-white/5">
+              <div 
+                className="bg-gradient-to-r from-purple-400 to-indigo-400 h-2 rounded-full transition-all duration-300 ease-out" 
+                style={{ width: `${progressValue}%`, boxShadow: '0 0 15px rgba(168, 85, 247, 0.8)' }}
+              />
+            </div>
+          )}
+          {isAutoIndexing && (
+            <p className="text-xs text-gray-400 font-mono mt-3">{progressValue}%</p>
+          )}
+
+          {/* Magical Star Us Call-To-Action Card */}
+          <motion.a
+            href="https://github.com/CodeGraphContext/CodeGraphContext"
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(168,85,247,0.2)" }}
+            className="mt-12 p-6 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-purple-500/40 transition-all duration-300 w-full flex flex-col items-center gap-3 relative overflow-hidden group cursor-pointer"
+          >
+            {/* Ambient Background Star */}
+            <div className="absolute -right-6 -bottom-6 text-white/[0.01] text-9xl font-bold select-none group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+              ★
+            </div>
+            
+            {/* Pulsing Star with Floating Micro-Stars */}
+            <div className="relative">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.15, 1],
+                  rotate: [0, 5, -5, 0],
+                  filter: [
+                    "drop-shadow(0 0 4px rgba(168,85,247,0.4))",
+                    "drop-shadow(0 0 15px rgba(168,85,247,0.8))",
+                    "drop-shadow(0 0 4px rgba(168,85,247,0.4))"
+                  ]
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 2.5,
+                  ease: "easeInOut"
+                }}
+                className="text-amber-400 text-4xl select-none"
+              >
+                ★
+              </motion.div>
+              
+              {/* Micro-stars floating up */}
+              {[...Array(3)].map((_, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.5, y: 0, x: 0 }}
+                  animate={{ 
+                    opacity: [0, 1, 0], 
+                    scale: [0.5, 1, 0.5],
+                    y: [-10, -35],
+                    x: [0, (i - 1) * 15]
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 2, 
+                    delay: i * 0.6,
+                    ease: "easeOut"
+                  }}
+                  className="absolute text-amber-300 text-xs select-none pointer-events-none"
+                  style={{ top: "10px", left: "12px" }}
+                >
+                  ✦
+                </motion.span>
+              ))}
+            </div>
+            
+            <div className="text-center z-10">
+              <h3 className="text-sm font-semibold text-white group-hover:text-purple-400 transition-colors">
+                Loving CodeGraphContext?
+              </h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[280px] mx-auto leading-relaxed">
+                Help us grow! Star our repository on GitHub while we load and index your code.
+              </p>
+            </div>
+            
+            <div className="mt-2 px-4 py-1.5 rounded-full bg-purple-500/10 text-purple-300 text-xs font-semibold border border-purple-500/20 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 shadow-sm flex items-center gap-1.5">
+              <span>Star on GitHub</span>
+              <span className="text-[10px] group-hover:translate-x-0.5 transition-transform">➔</span>
+            </div>
+          </motion.a>
+        </div>
       </div>
     );
   }
@@ -402,7 +583,7 @@ const Explore = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background pt-24 pb-12 px-6 flex flex-col items-center">
+    <main className="min-h-screen bg-background pt-32 md:pt-36 pb-12 px-6 flex flex-col items-center">
       <AnimatePresence mode="wait">
         {!graphData ? (
           <motion.div 
