@@ -20,17 +20,19 @@ Persists key-value settings to the global environment configuration file:
 
 ```bash
 # Set default database engine
-cgc config set DEFAULT_DATABASE kuzudb
+cgc config set DEFAULT_DATABASE falkordb
 
 # Change file size threshold (in MB)
 cgc config set MAX_FILE_SIZE_MB 25
 ```
 
+`DEFAULT_DATABASE` is the supported configuration key for selecting the database backend. `DEFAULT_BACKEND` is not a valid `cgc config` key.
+
 ### 3. Database Selection Shortcut
 Quickly updates the `DEFAULT_DATABASE` key:
 
 ```bash
-cgc config db kuzudb
+cgc config db falkordb
 ```
 
 Valid database backend identifiers: `kuzudb`, `ladybugdb`, `falkordb` (Lite/embedded), `falkordb-remote`, and `neo4j`.
@@ -50,7 +52,7 @@ cgc config reset
 
 | Config Key | Default | Description |
 | :--- | :--- | :--- |
-| **`DEFAULT_DATABASE`** | `kuzudb` | Active database engine. Options: `kuzudb`, `ladybugdb`, `falkordb`, `falkordb-remote`, `neo4j`. |
+| **`DEFAULT_DATABASE`** | `falkordb` | Active database engine. Options: `kuzudb`, `ladybugdb`, `falkordb`, `falkordb-remote`, `neo4j`. |
 | **`ENABLE_AUTO_WATCH`** | `false` | When `true`, indexing a project automatically initializes a directory watcher. |
 | **`PARALLEL_WORKERS`** | `4` | Max thread pool size for parsing code files concurrently. |
 | **`CACHE_ENABLED`** | `true` | Caches file hashes to support fast incremental scans. |

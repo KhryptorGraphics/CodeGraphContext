@@ -131,7 +131,7 @@ A powerful **MCP server** and **CLI toolkit** that indexes local code into a gra
 -   **Interactive Setup:** A user-friendly command-line wizard for easy setup.
 -   **Dual Mode:** Works as a standalone **CLI toolkit** for developers and as an **MCP server** for AI agents.
 -   **Multi-Language Support:** Full support for 20 programming languages.
--   **Flexible Database Backend:** KuzuDB (Default), LadybugDB, FalkorDB Lite (Typical Unix default), FalkorDB Remote, Nornic DB, or Neo4j (all platforms via Docker/native).
+-   **Flexible Database Backend:** FalkorDB Lite (Default), KuzuDB, LadybugDB, FalkorDB Remote, Nornic DB, or Neo4j (all platforms via Docker/native).
 
 
 ---
@@ -234,8 +234,8 @@ _If you’re using CodeGraphContext in your project, feel free to open a PR and 
 
 3.  **Database Setup (Automatic):**
     CodeGraphContext uses an embedded graph database by default.
-    - **KuzuDB:** Default for all platforms.
-    - **FalkorDB Lite:** Preferred on Unix/macOS if available.
+    - **FalkorDB Lite:** Default backend.
+    - **KuzuDB:** Cross-platform embedded backend.
     - **Neo4j:** Run `codegraphcontext neo4j setup` to use an external server.
 
 ---
