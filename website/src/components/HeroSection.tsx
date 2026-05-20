@@ -152,7 +152,7 @@ const HeroSection = () => {
                     </a>
                   </Button>
                   <Button variant="outline" size="lg" asChild className={`${OUTLINE_BUTTON_CLASSES} h-14 rounded-xl`}>
-                    <a href="https://codegraphcontext.github.io/CodeGraphContext/" target="_blank" rel="noopener noreferrer">
+                    <a href="https://codegraphcontext.github.io/" target="_blank" rel="noopener noreferrer">
                       Docs
                       <ExternalLink className="ml-2 h-4 w-4 text-muted-foreground" />
                     </a>

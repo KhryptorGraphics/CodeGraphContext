@@ -178,7 +178,7 @@ const Footer = () => {
                   className="social-btn social-docs social-float"
                 >
                   <a
-                    href="https://codegraphcontext.github.io/CodeGraphContext/"
+                    href="https://codegraphcontext.github.io/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center"
@@ -199,7 +199,7 @@ const Footer = () => {
               <ul className="space-y-3 text-muted-foreground">
                 <li>
                   <a
-                    href="https://codegraphcontext.github.io/CodeGraphContext/"
+                    href="https://codegraphcontext.github.io/"
                     className="hover:text-foreground transition-smooth"
                     target="_blank"
                     rel="noopener noreferrer"
