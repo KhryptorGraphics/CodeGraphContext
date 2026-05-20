@@ -78,7 +78,7 @@ const Explore = () => {
         return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${filepath}`;
       }
     }
-    if (url.includes("github.com") && (url.includes("/releases/download/") || url.includes("/raw/"))) {
+    if (url.includes("github.com") && (url.includes("/releases/download/") || url.includes("/raw/") || url.includes("/archive/"))) {
       return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
     }
     return url;
