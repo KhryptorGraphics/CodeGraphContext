@@ -31,9 +31,9 @@ pip install codegraphcontext
 
 ## 2. Database Driver Setup
 
-CGC requires Python driver bindings for your selected database backend. KuzuDB is configured by default.
+CGC requires Python driver bindings for your selected database backend. FalkorDB Lite is configured by default.
 
-### Installing KuzuDB Drivers (Recommended Default)
+### Installing KuzuDB Drivers
 KuzuDB is embedded and runs directly inside the Python process.
 ```bash
 pip install kuzu
@@ -63,9 +63,9 @@ pip install neo4j
 Set your preferred default database backend in the global configuration:
 
 ```bash
-cgc config db kuzudb       # Configure KuzuDB (Default)
+cgc config db falkordb     # Configure FalkorDB Lite / Remote (Default)
+cgc config db kuzudb       # Configure KuzuDB
 cgc config db ladybugdb    # Configure LadybugDB
-cgc config db falkordb     # Configure FalkorDB Lite / Remote
 cgc config db neo4j        # Configure Neo4j
 ```
 

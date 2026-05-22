@@ -6,18 +6,18 @@ CodeGraphContext (CGC) implements a pluggable database architecture. A common in
 
 ## Backend Comparison Matrix
 
-| Feature / Metric | KuzuDB (Default) | LadybugDB | FalkorDB (Lite) | FalkorDB (Remote) | Neo4j |
+| Feature / Metric | FalkorDB (Lite, Default) | KuzuDB | LadybugDB | FalkorDB (Remote) | Neo4j |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Type** | Embedded C++ | Embedded SQL | Embedded In-Memory | Remote Client | Remote Client |
-| **Operating System** | Cross-Platform | Cross-Platform | Linux / macOS | Cross-Platform | Cross-Platform |
+| **Type** | Embedded In-Memory | Embedded C++ | Embedded SQL | Remote Client | Remote Client |
+| **Operating System** | Linux / macOS | Cross-Platform | Cross-Platform | Cross-Platform | Cross-Platform |
 | **Setup Overhead** | None | None | None | Low (Docker) | Medium (Docker/Aura) |
-| **Read Latency** | Very Low | Low | Extremely Low | Low | Medium |
-| **Max Capacity** | Large | Medium | RAM-Bounded | Unlimited | Unlimited |
+| **Read Latency** | Extremely Low | Very Low | Low | Low | Medium |
+| **Max Capacity** | RAM-Bounded | Large | Medium | Unlimited | Unlimited |
 | **Visualization** | CLI / Custom Web UI | CLI / Custom Web UI | CLI / Custom Web UI | Neo4j Client (via Cypher) | Neo4j Browser Console |
 
 ---
 
-## 1. KuzuDB (Recommended Default)
+## 1. KuzuDB
 
 KuzuDB is an in-process property graph database management system. It requires zero configuration and stores graph data inside a directory on your filesystem.
 

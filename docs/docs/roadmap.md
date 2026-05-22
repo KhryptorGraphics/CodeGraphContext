@@ -8,7 +8,7 @@ CodeGraphContext is developed to continuously expand static code analysis depth,
 
 The following capabilities are supported in the active release:
 - **Polyglot Parser Suite**: Syntactic support for 19 target languages.
-- **Pluggable Storage Drivers**: Operations across KuzuDB (Default), LadybugDB, FalkorDB, and Neo4j.
+- **Pluggable Storage Drivers**: Operations across FalkorDB (Default), KuzuDB, LadybugDB, and Neo4j.
 - **Model Context Protocol (MCP)**: Implements 25 JSON-RPC tools for LLM agent integration.
 - **Directory Watchers**: watchdog-based monitors for incremental synchronization.
 - **Graph Serialization**: Exporting/importing database contexts as portable `.cgc` bundles.

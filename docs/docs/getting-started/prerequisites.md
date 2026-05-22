@@ -30,9 +30,9 @@ CGC supports multiple database engines. You only need to set up the engine that 
 
 | Database Backend | Setup Type | Target Platform | Use Case |
 | :--- | :--- | :--- | :--- |
-| **KuzuDB (Default)** | In-process (Embedded) | Cross-Platform (Linux/macOS/Windows) | Recommended for local development and zero-ops setups. Works natively out-of-the-box on Python 3.10+. |
+| **FalkorDB Lite (Default)** | In-process (Embedded) | Unix-Only (Linux/macOS) | Embedded, high-performance in-memory graph. Requires Python 3.12+. |
+| **KuzuDB** | In-process (Embedded) | Cross-Platform (Linux/macOS/Windows) | Recommended for local development and zero-ops setups. Works natively out-of-the-box on Python 3.10+. |
 | **LadybugDB** | In-process (Embedded) | Cross-Platform | Embedded SQL-based graph engine. Operates similarly to KuzuDB. |
-| **FalkorDB Lite** | In-process (Embedded) | Unix-Only (Linux/macOS) | Embedded, high-performance in-memory graph. Requires Python 3.12+. |
 | **FalkorDB Remote** | Networked Server | Cross-Platform Client | Standard client connecting to a remote FalkorDB instance. |
 | **Neo4j** | Networked Server | Cross-Platform Client | Enterprise setups needing complex clustering, access controls, or Neo4j Browser visualization. |
 
