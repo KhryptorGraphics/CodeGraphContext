@@ -703,10 +703,15 @@ const Explore = () => {
       let cleanOwner = "local";
       let cleanRepo = metaRepo || "local-project";
 
-      if (metaRepo.includes("/")) {
-        const parts = metaRepo.split("/");
-        cleanOwner = parts[0];
-        cleanRepo = parts[1];
+      if (metaRepo) {
+        if (metaRepo.includes("/")) {
+          const parts = metaRepo.split("/");
+          cleanOwner = parts[0];
+          cleanRepo = parts[1];
+        } else {
+          cleanOwner = "local";
+          cleanRepo = metaRepo;
+        }
       } else if (owner && repo) {
         cleanOwner = owner;
         cleanRepo = repo;
