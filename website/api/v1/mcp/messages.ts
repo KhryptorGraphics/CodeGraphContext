@@ -253,23 +253,22 @@ export default async function handler(req: any, res: any) {
         }
 
         const sessionToken = session_id ? String(session_id).trim().toLowerCase() : "";
-        let channelName = "";
 
-        if (sessionToken) {
-          // 100% Secure, isolated, and simple user-scoped channel name!
-          channelName = `cgc-tunnel-${sessionToken}`;
-        } else {
-          // Backward compatibility fallback for historical ChatGPT sessions
-          const cleanRepo = repo ? repo.trim().replace(/^(https?:\/\/)?(www\.)?github\.com\//, "").replace(/\/$/, "") : "";
-          const cleanRepoName = cleanRepo ? cleanRepo.replace(/\//g, "_").toLowerCase() : "";
-          const cleanBranch = branch ? String(branch).replace(/\//g, "_").toLowerCase() : "main";
-          const commitStr = commit ? String(commit) : "latest";
-          const cleanCommit = commitStr.length === 40 && /^[0-9a-fA-F]+$/.test(commitStr) ? commitStr.substring(0, 7).toLowerCase() : commitStr.toLowerCase();
-          
-          channelName = isGlobalTool 
-            ? (cleanRepoName ? `cgc-tunnel-global-${cleanRepoName}` : "cgc-tunnel-global-playground") 
-            : `cgc-tunnel-${cleanRepoName}-${cleanBranch}-${cleanCommit}`;
+        if (!sessionToken) {
+          return res.status(200).json({
+            jsonrpc: "2.0",
+            id,
+            result: {
+              isError: true,
+              content: [{
+                type: "text",
+                text: "Error: Missing required argument 'session_id' inside tool arguments. Please provide your 6-character session token to establish connection."
+              }]
+            }
+          });
         }
+
+        const channelName = `cgc-tunnel-${sessionToken}`;
         const channel = supabase.channel(channelName);
         const requestId = Math.random().toString(36).substring(2, 15);
         let hasResponded = false;

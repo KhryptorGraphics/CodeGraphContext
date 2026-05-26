@@ -87,32 +87,15 @@ export default async function handler(req: any, res: any) {
   const wasmQueries = ["definitions", "callers", "callees", "file_structure", "search", "cypher"];
   const isWasmQuery = wasmQueries.includes(query_type);
 
-  let channelName = "";
   const sessionToken = session_id ? String(session_id).trim().toLowerCase() : "";
 
-  if (sessionToken) {
-    // 100% Secure, isolated, and simple user-scoped channel name!
-    channelName = `cgc-tunnel-${sessionToken}`;
-  } else {
-    // Backward compatibility fallback for historical ChatGPT sessions
-    let cleanRepo = "";
-    if (repo && typeof repo === "string") {
-      cleanRepo = repo.trim().replace(/^(https?:\/\/)?(www\.)?github\.com\//, "").replace(/\/$/, "");
-    }
-    if (cleanRepo) {
-      const cleanRepoName = cleanRepo.replace(/\//g, "_").toLowerCase();
-      if (isGlobalTool) {
-        channelName = `cgc-tunnel-global-${cleanRepoName}`;
-      } else {
-        const cleanBranch = branch ? String(branch).replace(/\//g, "_").toLowerCase() : "main";
-        const commitStr = commit ? String(commit) : "latest";
-        const cleanCommit = commitStr.length === 40 && /^[0-9a-fA-F]+$/.test(commitStr) ? commitStr.substring(0, 7).toLowerCase() : commitStr.toLowerCase();
-        channelName = `cgc-tunnel-${cleanRepoName}-${cleanBranch}-${cleanCommit}`;
-      }
-    } else {
-      channelName = "cgc-tunnel-global-playground";
-    }
+  if (!sessionToken) {
+    return res.status(400).json({
+      error: "Missing required parameter 'session_id'. Please provide the 6-character session token to connect to your browser tab."
+    });
   }
+
+  const channelName = `cgc-tunnel-${sessionToken}`;
 
   const channel = supabase.channel(channelName);
   const requestId = Math.random().toString(36).substring(2, 15);

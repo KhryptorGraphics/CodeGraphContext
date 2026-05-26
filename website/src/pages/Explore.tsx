@@ -808,16 +808,9 @@ const Explore = () => {
       
     const cleanRepoName = activeRepoPath.replace(/\//g, "_");
 
-    // 4. Extract version metadata (branch and commit) to build the version-scoped routing signature
-    const branchName = graphData.metadata?.branch || "main";
-    const commitSha = graphData.metadata?.commit || "latest";
-    const cleanBranch = branchName.replace(/\//g, "_").toLowerCase();
-    const cleanCommit = commitSha.length === 40 && /^[0-9a-fA-F]+$/.test(commitSha) ? commitSha.substring(0, 7).toLowerCase() : commitSha.toLowerCase();
-
-    // 100% Isolated routing using anonymous user / device ID
+    // 4. Compute 100% Isolated routing using anonymous user / device ID
     const userId = getOrCreateSessionId();
     const channelName = `cgc-tunnel-${userId}`;
-    const legacyChannelName = `cgc-tunnel-${cleanRepoName}-${cleanBranch}-${cleanCommit}`;
 
     console.log(`[Explore Tunnel] Booting MCP signaling conduit: ${channelName}`);
 
@@ -1052,7 +1045,6 @@ const Explore = () => {
       supabaseUrl,
       supabaseAnonKey,
       channelName,
-      legacyChannelName,
       executeQueryCallback,
       getToolsCallback,
       executeToolCallback

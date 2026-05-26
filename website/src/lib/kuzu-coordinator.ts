@@ -20,9 +20,7 @@ function isChannelJoined(channel: RealtimeChannel | null): boolean {
 
 export class KuzuCoordinator {
   private channelName: string;
-  private globalChannelName: string;
   private channel: RealtimeChannel | null = null;
-  private globalChannel: RealtimeChannel | null = null;
 
   private executeQueryCallback: QueryExecutionCallback;
   private getToolsCallback: ToolsListCallback;
@@ -37,20 +35,18 @@ export class KuzuCoordinator {
     _supabaseUrl: string,
     _supabaseAnonKey: string,
     channelName: string,
-    globalChannelName: string,
     executeQueryCallback: QueryExecutionCallback,
     getToolsCallback: ToolsListCallback,
     executeToolCallback: ToolCallCallback
   ) {
     this.channelName = channelName;
-    this.globalChannelName = globalChannelName;
     this.executeQueryCallback = executeQueryCallback;
     this.getToolsCallback = getToolsCallback;
     this.executeToolCallback = executeToolCallback;
   }
 
   private isTunnelHealthy(): boolean {
-    return isChannelJoined(this.channel) && isChannelJoined(this.globalChannel);
+    return isChannelJoined(this.channel);
   }
 
   private handleVisibilityChange = () => {
@@ -84,7 +80,7 @@ export class KuzuCoordinator {
   }
 
   /**
-   * Subscribes to the real-time signaling channels and listens for queries/MCP events.
+   * Subscribes to the real-time signaling channel and listens for queries/MCP events.
    */
   public start() {
     this.isStarted = true;
@@ -111,25 +107,12 @@ export class KuzuCoordinator {
       });
     }
 
-    if (!this.globalChannel) {
-      console.log(`[KuzuCoordinator] Subscribing to global channel: ${this.globalChannelName}`);
-      this.globalChannel = supabase.channel(this.globalChannelName);
-      this.setupChannelListeners(this.globalChannel, this.globalChannelName);
-      this.globalChannel.subscribe((status: string) => {
-        if (status === "SUBSCRIBED") {
-          console.log(
-            `[KuzuCoordinator] ✅ Subscribed to global channel: ${this.globalChannelName}`
-          );
-        }
-      });
-    }
-
     // Keep WebSocket warm when ChatGPT tab steals focus (Firefox/Chrome throttle background tabs)
     if (this.keepaliveInterval) clearInterval(this.keepaliveInterval);
     this.keepaliveInterval = setInterval(() => {
       if (!this.isStarted) return;
       try {
-        this.globalChannel?.send({
+        this.channel?.send({
           type: "broadcast",
           event: "tunnel-keepalive",
           payload: { t: Date.now() }
@@ -217,16 +200,6 @@ export class KuzuCoordinator {
         /* ignore */
       }
       this.channel = null;
-    }
-
-    if (this.globalChannel) {
-      console.log("[KuzuCoordinator] Unsubscribing from global tools tunnel");
-      try {
-        await supabase.removeChannel(this.globalChannel);
-      } catch {
-        /* ignore */
-      }
-      this.globalChannel = null;
     }
 
     if (this.keepaliveInterval) {
