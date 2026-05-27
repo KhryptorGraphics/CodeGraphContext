@@ -30,6 +30,7 @@ const BundleRegistrySection = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [copiedBundleIndex, setCopiedBundleIndex] = useState<number | null>(null);
+    const [downloadingUrls, setDownloadingUrls] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         fetchBundles();
@@ -61,6 +62,45 @@ const BundleRegistrySection = () => {
             setBundles(getMockBundles());
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDownloadBundle = async (downloadUrl: string, bundleName: string) => {
+        setDownloadingUrls(prev => ({ ...prev, [downloadUrl]: true }));
+        const toastId = toast.loading(`Downloading ${bundleName}...`);
+
+        try {
+            const response = await fetch(downloadUrl);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const base64Text = await response.text();
+            
+            // Decode base64 to binary
+            const binaryString = atob(base64Text.trim());
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            const blob = new Blob([bytes], { type: "application/octet-stream" });
+            const cleanFilename = bundleName.replace('.base64', '');
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = cleanFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            toast.success(`Successfully downloaded ${cleanFilename}!`, { id: toastId });
+        } catch (err: any) {
+            console.error("Failed to decode and download bundle:", err);
+            toast.error("Failed to download bundle: " + err.message, { id: toastId });
+        } finally {
+            setDownloadingUrls(prev => ({ ...prev, [downloadUrl]: false }));
         }
     };
 
@@ -391,11 +431,18 @@ const BundleRegistrySection = () => {
                                                         Visualize
                                                     </a>
                                                 </Button>
-                                                <Button variant="outline" className="flex-1 text-xs py-2 rounded-lg bg-black/20 border-white/10 text-white hover:bg-white/5" asChild>
-                                                    <a href={bundle.download_url} download>
+                                                <Button 
+                                                    variant="outline" 
+                                                    className="flex-1 text-xs py-2 rounded-lg bg-black/20 border-white/10 text-white hover:bg-white/5"
+                                                    onClick={() => handleDownloadBundle(bundle.download_url, bundle.bundle_name || `${bundle.name}.cgc`)}
+                                                    disabled={downloadingUrls[bundle.download_url]}
+                                                >
+                                                    {downloadingUrls[bundle.download_url] ? (
+                                                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin shrink-0 text-primary" />
+                                                    ) : (
                                                         <Download className="w-3.5 h-3.5 mr-1.5 shrink-0" />
-                                                        Download
-                                                    </a>
+                                                    )}
+                                                    {downloadingUrls[bundle.download_url] ? "Downloading..." : "Download"}
                                                 </Button>
                                             </div>
 
