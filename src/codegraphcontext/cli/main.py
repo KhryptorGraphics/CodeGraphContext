@@ -981,6 +981,7 @@ def doctor():
             password = os.environ.get("NEO4J_PASSWORD")
             database_name = os.environ.get("NEO4J_DATABASE")
 
+            from codegraphcontext.core.database import DatabaseManager
             missing = DatabaseManager.get_missing_credentials(uri, username, password)
             console.print(f"   [cyan]Credential check:[/cyan] {'OK' if not missing else 'Missing ' + ', '.join(missing)}")
             if missing:
