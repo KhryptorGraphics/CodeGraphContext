@@ -219,7 +219,7 @@ const CookbookSection = () => {
                       variant="ghost"
                       size="sm"
                       onClick={(e) => handleCopy(e, example.args)}
-                      className="h-8 hover:bg-white/10"
+                      className="h-8 hover:bg-purple-500/20"
                     >
                       {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
                     </Button>
@@ -253,7 +253,7 @@ const CookbookSection = () => {
       <div className="container mx-auto max-w-5xl relative z-10">
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="p-2 rounded-full bg-white text-black">
+            <div className="p-2 rounded-full bg-purple-600 text-white">
               <BookOpen className="h-6 w-6" />
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-tight py-2">
@@ -268,17 +268,17 @@ const CookbookSection = () => {
 
         <Tabs defaultValue="basic" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-10 bg-white/5 p-1.5 rounded-full h-auto border border-white/10 shadow-inner">
-            <TabsTrigger value="basic" className="flex items-center justify-center gap-2 py-3 rounded-full data-[state=active]:bg-white data-[state=active]:text-black transition-all text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white data-[state=active]:hover:text-black">
+            <TabsTrigger value="basic" className="flex items-center justify-center gap-2 py-3 rounded-full data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white data-[state=active]:hover:text-white">
               <Search className="h-4 w-4" />
               <span className="hidden sm:inline">Basic Navigation</span>
               <span className="sm:hidden">Basic</span>
             </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center justify-center gap-2 py-3 rounded-full data-[state=active]:bg-white data-[state=active]:text-black transition-all text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white data-[state=active]:hover:text-black">
+            <TabsTrigger value="analysis" className="flex items-center justify-center gap-2 py-3 rounded-full data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white data-[state=active]:hover:text-white">
               <Terminal className="h-4 w-4" />
               <span className="hidden sm:inline">Code Analysis</span>
               <span className="sm:hidden">Analysis</span>
             </TabsTrigger>
-            <TabsTrigger value="cypher" className="flex items-center justify-center gap-2 py-3 rounded-full data-[state=active]:bg-white data-[state=active]:text-black transition-all text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white data-[state=active]:hover:text-black">
+            <TabsTrigger value="cypher" className="flex items-center justify-center gap-2 py-3 rounded-full data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white data-[state=active]:hover:text-white">
               <Database className="h-4 w-4" />
               <span className="hidden sm:inline">Advanced Queries</span>
               <span className="sm:hidden">Advanced</span>
@@ -340,7 +340,7 @@ const CookbookSection = () => {
         <div className="mt-16 text-center">
           <GlassCard hoverable={false} glowColor="none" className="inline-block p-8 border border-white/20">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="p-2 rounded-full bg-white text-black">
+              <div className="p-2 rounded-full bg-purple-600 text-white">
                 <Code className="h-6 w-6" />
               </div>
               <h4 className="text-[11px] font-black uppercase tracking-widest text-white">Want to contribute more examples?</h4>
@@ -348,7 +348,7 @@ const CookbookSection = () => {
             <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-6">
               Help expand this cookbook with your own patterns and use cases.
             </p>
-            <Button className="bg-transparent hover:bg-white hover:text-black text-white rounded-full px-8 py-3 border border-white/20 font-black text-[10px] uppercase tracking-widest transition-colors" asChild>
+            <Button className="bg-transparent hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] text-white rounded-full px-8 py-3 border border-white/20 font-black text-[10px] uppercase tracking-widest transition-colors" asChild>
               <a
                 href="https://github.com/CodeGraphContext/CodeGraphContext/blob/main/docs/docs/cookbook.md"
                 target="_blank"

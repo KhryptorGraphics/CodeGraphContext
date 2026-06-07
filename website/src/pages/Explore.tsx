@@ -1381,7 +1381,7 @@ const Explore = () => {
             </button>
             <button 
               onClick={() => window.location.reload()} 
-              className="w-full bg-white hover:bg-gray-200 text-black py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors"
+              className="w-full bg-white text-black hover:bg-gray-200 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors border-0"
             >
               Retry
             </button>
@@ -1403,7 +1403,7 @@ const Explore = () => {
             className="w-full max-w-4xl mx-auto flex flex-col items-center mt-12"
           >
             <div className="text-center mb-12">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 text-white uppercase tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 gradient-text uppercase tracking-tight">
                 Graph Explorer
               </h1>
               <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest max-w-2xl mx-auto">
@@ -1444,7 +1444,7 @@ const Explore = () => {
                     href="https://chatgpt.com/g/g-6a1368599210819199a1c47d021020b6-codegraphcontext" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 bg-white hover:bg-gray-200 text-black font-black text-[10px] uppercase tracking-widest py-2 px-5 rounded-full transition-all"
+                    className="inline-flex items-center gap-1.5 bg-white text-black hover:bg-gray-200 font-black text-[10px] uppercase tracking-widest py-2 px-5 rounded-full transition-all border-0"
                   >
                     💬 Open CGC ChatGPT
                   </a>

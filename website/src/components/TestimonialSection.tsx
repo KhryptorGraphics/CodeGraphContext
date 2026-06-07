@@ -2,8 +2,8 @@ import { OrbitingCircles } from "./ui/orbiting-circles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useMemo, useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import GlassCard from "./GlassCard";
 
 const avatars = [
@@ -41,14 +41,20 @@ export default function TestimonialSection() {
   return (
     <section className="py-24 px-4 bg-black">
       <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 text-white uppercase tracking-tight py-2">
-            What Teams Are Saying
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 uppercase tracking-tight py-2 text-white">
+            Loved by Developers
           </h2>
-          <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest max-w-3xl mx-auto">
-            Real feedback from engineers and leaders using CodeGraphContext.
+          <p className="text-sm font-mono text-gray-500 uppercase tracking-widest max-w-3xl mx-auto mb-12">
+            See what the community is saying about the future of code intelligence
           </p>
-        </div>
+        </motion.div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div 
             className="relative mx-auto w-full flex items-center justify-center overflow-hidden transition-all duration-300"
@@ -56,22 +62,22 @@ export default function TestimonialSection() {
           >
             <OrbitingCircles iconSize={isMobile ? 36 : 56} radius={isMobile ? 100 : 185} speed={1.4}>
               {avatars.map((avatar, i) => (
-                <a key={i} href={avatar.profileUrl} target="_blank" rel="noopener noreferrer">
+                <a key={i} href={avatar.profileUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
                   <img 
                     src={avatar.imageUrl} 
                     alt={`avatar-${i}`} 
-                    className={`${isMobile ? 'w-9 h-9' : 'w-14 h-14'} rounded-full border border-white/20 filter grayscale hover:grayscale-0 transition-all`} 
+                    className={`w-full h-full object-cover rounded-full border border-purple-500/30 hover:border-cyan-400 transition-all`} 
                   />
                 </a>
               ))}
             </OrbitingCircles>
             <OrbitingCircles iconSize={isMobile ? 28 : 44} radius={isMobile ? 60 : 105} reverse speed={2}>
               {avatars.slice(1, 5).map((avatar, i) => (
-                 <a key={i} href={avatar.profileUrl} target="_blank" rel="noopener noreferrer">
+                 <a key={i} href={avatar.profileUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
                     <img 
                       src={avatar.imageUrl} 
                       alt={`avatar-inner-${i}`} 
-                      className={`${isMobile ? 'w-7 h-7' : 'w-11 h-11'} rounded-full border border-white/20 filter grayscale hover:grayscale-0 transition-all`} 
+                      className={`w-full h-full object-cover rounded-full border border-purple-500/30 hover:border-cyan-400 transition-all`} 
                     />
                  </a>
               ))}
@@ -118,8 +124,8 @@ export default function TestimonialSection() {
                     </motion.div>
                   </AnimatePresence>
                   <div className="flex gap-2">
-                    <Button onClick={prev} size="icon" variant="outline" className="rounded-full bg-transparent border-white/20 hover:bg-white hover:text-black text-white transition-colors"><ChevronLeft className="h-4 w-4" /></Button>
-                    <Button onClick={next} size="icon" className="rounded-full bg-white text-black hover:bg-gray-200 transition-colors"><ChevronRight className="h-4 w-4" /></Button>
+                    <Button onClick={prev} size="icon" variant="outline" className="rounded-full bg-transparent border-white/20 hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] text-white transition-colors"><ChevronLeft className="h-4 w-4" /></Button>
+                    <Button onClick={next} size="icon" className="rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 border-0 text-white hover:opacity-90 transition-colors"><ChevronRight className="h-4 w-4" /></Button>
                   </div>
                 </div>
               </div>

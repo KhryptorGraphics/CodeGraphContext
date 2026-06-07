@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import MagneticButton from "@/components/MagneticButton";
 
-const OUTLINE_BUTTON_CLASSES = "border-white/20 hover:border-white/60 bg-transparent transition-colors text-white w-full sm:w-auto h-12 rounded-full font-semibold uppercase tracking-widest text-xs";
+const OUTLINE_BUTTON_CLASSES = "border-cyan-400/50 hover:border-cyan-400 bg-transparent transition-colors text-cyan-50 shadow-[0_0_10px_rgba(34,211,238,0.1)] w-full sm:w-auto h-12 rounded-full font-semibold uppercase tracking-widest text-xs";
 
 const HeroSection = () => {
   const [stars, setStars] = useState<number | null>(null);
@@ -221,7 +221,7 @@ const HeroSection = () => {
 
               <MagneticButton
                 onClick={handleGenerateBundle}
-                className="w-full bg-white hover:bg-gray-200 text-black rounded-2xl py-6 font-bold uppercase tracking-widest text-xs transition-colors"
+                className="w-full bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] rounded-2xl py-6 font-bold uppercase tracking-widest text-xs transition-colors"
               >
                 <Package className="mr-2 h-4 w-4" />
                 Generate Bundle
@@ -250,7 +250,7 @@ const HeroSection = () => {
                 <Clock className="h-4 w-4 text-white animate-pulse" />
                 Generating Bundle
               </div>
-              <span className="text-[10px] px-2 py-1 uppercase font-mono bg-white text-black font-bold">
+              <span className="text-[10px] px-2 py-1 uppercase font-mono bg-purple-600 text-white font-bold">
                 {generationStatus.status === "triggered" ? "Queued" : "Indexing"}
               </span>
             </div>
@@ -292,12 +292,12 @@ const HeroSection = () => {
             )}
 
             <div className="flex gap-3">
-              <Button asChild className="flex-1 bg-white hover:bg-gray-200 text-black rounded-xl uppercase font-bold text-xs tracking-widest h-12">
+              <Button asChild className="flex-1 bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] rounded-xl uppercase font-bold text-xs tracking-widest h-12">
                 <a href={`/explore?bundle_url=${encodeURIComponent(generationStatus.download_url)}`}>
                   Visualize
                 </a>
               </Button>
-              <Button variant="outline" asChild className="flex-1 rounded-xl border-white/20 hover:bg-white/5 uppercase font-bold text-xs tracking-widest h-12">
+              <Button variant="outline" asChild className="flex-1 rounded-xl border-white/20 hover:bg-purple-500/10 uppercase font-bold text-xs tracking-widest h-12">
                 <a href={generationStatus.download_url} download>
                   <Download className="mr-2 h-4 w-4" />
                   Download
@@ -329,7 +329,7 @@ const HeroSection = () => {
             <p className="text-xs font-mono text-gray-400 leading-relaxed border-l-2 border-red-500/30 pl-3">{generationStatus.error}</p>
             <Button
               variant="outline"
-              className="w-full text-xs font-bold uppercase tracking-widest text-white border-white/20 hover:bg-white/5 rounded-xl mt-4 h-12"
+              className="w-full text-xs font-bold uppercase tracking-widest text-white border-white/20 hover:bg-purple-500/10 rounded-xl mt-4 h-12"
               onClick={() => {
                 setGenerationStatus({ status: "idle" });
                 setProgress(0);
@@ -366,7 +366,7 @@ const HeroSection = () => {
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1.1] mb-6 font-sans">
           THE CODEBASE <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">KNOWLEDGE GRAPH</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-400">KNOWLEDGE GRAPH</span>
         </h1>
 
         <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 font-light">
@@ -375,20 +375,20 @@ const HeroSection = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center justify-center mb-24">
           <MagneticButton 
-            className="bg-white text-black hover:bg-gray-200 transition-colors cursor-pointer w-full sm:w-[320px] h-14 flex items-center justify-center font-bold text-sm tracking-wide rounded-full uppercase"
+            className="bg-purple-600 hover:bg-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white hover:opacity-90 transition-all duration-300 cursor-pointer w-full sm:w-[320px] h-14 flex items-center justify-center font-bold text-sm tracking-wide rounded-full uppercase border-0"
             onClick={handleCopy}
           >
             {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
             pip install codegraphcontext
           </MagneticButton>
 
-          <Button variant="outline" asChild className="border-white/20 hover:border-white/60 bg-transparent transition-colors text-white w-full sm:w-auto h-14 rounded-full font-bold uppercase tracking-widest text-xs px-8">
+          <Button asChild className="bg-cyan-400 hover:bg-cyan-300 text-black shadow-[0_0_20px_rgba(34,211,238,0.4)] border-0 transition-colors w-full sm:w-auto h-14 rounded-full font-bold uppercase tracking-widest text-xs px-8">
             <a href="https://github.com/CodeGraphContext/CodeGraphContext" target="_blank" rel="noopener noreferrer">
               <Github className="mr-2 h-4 w-4" />
               GitHub
             </a>
           </Button>
-          <Button variant="outline" asChild className="border-white/20 hover:border-white/60 bg-transparent transition-colors text-white w-full sm:w-auto h-14 rounded-full font-bold uppercase tracking-widest text-xs px-8">
+          <Button variant="outline" asChild className="border-cyan-400/50 hover:border-cyan-400 bg-transparent transition-colors text-cyan-50 shadow-[0_0_10px_rgba(34,211,238,0.1)] w-full sm:w-auto h-14 rounded-full font-bold uppercase tracking-widest text-xs px-8">
             <a href="https://codegraphcontext.github.io/" target="_blank" rel="noopener noreferrer">
               Docs
             </a>
@@ -401,13 +401,13 @@ const HeroSection = () => {
             <div className="absolute inset-0 bg-white/5 pointer-events-none"></div>
             <button 
               onClick={() => setActiveTab('client')} 
-              className={`flex-1 py-5 text-xs font-bold uppercase tracking-widest transition-colors relative z-10 ${activeTab === 'client' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 py-5 text-xs font-bold uppercase tracking-widest transition-colors relative z-10 ${activeTab === 'client' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               Client Indexer
             </button>
             <button 
               onClick={() => setActiveTab('server')} 
-              className={`flex-1 py-5 text-xs font-bold uppercase tracking-widest transition-colors relative z-10 ${activeTab === 'server' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 py-5 text-xs font-bold uppercase tracking-widest transition-colors relative z-10 ${activeTab === 'server' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               Server Indexer
             </button>
@@ -423,11 +423,20 @@ const HeroSection = () => {
 
         {/* Stats */}
         <div className="flex items-center justify-center gap-6 text-[10px] font-mono text-gray-500 mt-16 uppercase tracking-widest border border-white/10 rounded-full px-8 py-3 bg-black">
-          <div>{stars !== null ? `${stars} Stars` : "Loading Stars"}</div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
+            {stars !== null ? `${stars} Stars` : "Loading Stars"}
+          </div>
           <div>•</div>
-          <div>{forks !== null ? `${forks} Forks` : "Loading Forks"}</div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]" style={{ animationDelay: '0.5s' }} />
+            {forks !== null ? `${forks} Forks` : "Loading Forks"}
+          </div>
           <div>•</div>
-          <div><ShowDownloads /></div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" style={{ animationDelay: '1s' }} />
+            <ShowDownloads />
+          </div>
         </div>
       </div>
     </section>

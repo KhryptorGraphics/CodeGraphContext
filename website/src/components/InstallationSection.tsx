@@ -89,7 +89,7 @@ const InstallationSection = () => {
             
             <h3 className="text-lg font-black uppercase tracking-widest text-white mb-4 mt-4">Global Installation</h3>
             <p className="text-xs font-mono text-gray-400 mb-8 max-w-xl mx-auto uppercase tracking-wide">
-              Install the package globally via pip to access the <code className="bg-white text-black px-1.5 py-0.5 rounded text-xs font-bold">cgc</code> command everywhere.
+              Install the package globally via pip to access the <code className="bg-purple-600 text-white px-1.5 py-0.5 rounded text-xs font-bold">cgc</code> command everywhere.
             </p>
             
             <div className="max-w-2xl mx-auto">
@@ -104,7 +104,7 @@ const InstallationSection = () => {
             <GlassCard hoverable={false} className="p-6 transition-all duration-300">
               <CollapsibleTrigger className="w-full flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-full bg-white text-black">
+                  <div className="p-2.5 rounded-full bg-purple-600 text-white">
                     <Settings className="w-5 h-5" />
                   </div>
                   <div className="text-left">
@@ -118,8 +118,8 @@ const InstallationSection = () => {
               <CollapsibleContent className="pt-6 animate-in slide-in-from-top-2">
                 <div className="grid md:grid-cols-3 gap-4">
                   {setupOptions.map((option, idx) => (
-                    <div key={option.title} className="text-center p-5 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                      <div className={`w-12 h-12 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-4`}>
+                    <div key={option.title} className="text-center p-5 rounded-3xl bg-white/5 border border-white/10 hover:bg-purple-500/20 transition-colors">
+                      <div className={`w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-4`}>
                         <option.icon className={`h-5 w-5`} />
                       </div>
                       <h4 className="font-black text-xs uppercase tracking-widest text-white mb-2">{option.title}</h4>
@@ -139,13 +139,13 @@ const InstallationSection = () => {
             
             <Tabs defaultValue="mcp" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/5 border border-white/10 p-1.5 rounded-full h-auto">
-                <TabsTrigger value="cli" className="rounded-full py-3 data-[state=active]:bg-white data-[state=active]:text-black transition-all">
+                <TabsTrigger value="cli" className="rounded-full py-3 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all">
                   <div className="flex flex-col sm:flex-row items-center gap-2">
                     <Terminal className="w-4 h-4" />
                     <span className="font-black text-xs uppercase tracking-widest">CLI Toolkit</span>
                   </div>
                 </TabsTrigger>
-                <TabsTrigger value="mcp" className="rounded-full py-3 data-[state=active]:bg-white data-[state=active]:text-black transition-all">
+                <TabsTrigger value="mcp" className="rounded-full py-3 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all">
                   <div className="flex flex-col sm:flex-row items-center gap-2">
                     <Bot className="w-4 h-4" />
                     <span className="font-black text-xs uppercase tracking-widest">MCP Server</span>
@@ -177,7 +177,7 @@ const InstallationSection = () => {
                 
                 <div className="text-center">
                   <a href="https://codegraphcontext.github.io/cli/" target="_blank" rel="noopener noreferrer">
-                    <MagneticButton className="bg-white hover:bg-gray-200 text-black rounded-full px-8 py-3 border border-white/10 font-black text-xs uppercase tracking-widest transition-colors">
+                    <MagneticButton className="bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] rounded-full px-8 py-3 border border-white/10 font-black text-xs uppercase tracking-widest transition-colors">
                       View Full CLI Guide
                     </MagneticButton>
                   </a>
@@ -202,7 +202,7 @@ const InstallationSection = () => {
                       </div>
                       <div className="flex-1 space-y-3">
                         <h4 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-3">
-                          <span className="sm:hidden w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-[10px]">2</span>
+                          <span className="sm:hidden w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px]">2</span>
                           Run Setup Wizard
                         </h4>
                         <CommandBlock>$ cgc mcp setup</CommandBlock>
@@ -216,7 +216,7 @@ const InstallationSection = () => {
                       </div>
                       <div className="flex-1 space-y-3">
                         <h4 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-3">
-                          <span className="sm:hidden w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-[10px]">3</span>
+                          <span className="sm:hidden w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px]">3</span>
                           Start Server
                         </h4>
                         <CommandBlock>$ cgc mcp start</CommandBlock>

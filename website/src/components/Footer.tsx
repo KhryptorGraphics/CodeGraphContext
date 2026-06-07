@@ -102,7 +102,7 @@ const Footer = () => {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4 select-none">
                 <img
-                  src="/cgcIcon-white.png"
+                  src="/cgcIcon.png"
                   className="w-10 h-10"
                   alt="CodeGraphContext Logo"
                 />
@@ -119,7 +119,7 @@ const Footer = () => {
                   variant="outline"
                   size="sm"
                   asChild
-                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-colors"
                 >
                   <a
                     href="https://github.com/CodeGraphContext/CodeGraphContext"
@@ -138,7 +138,7 @@ const Footer = () => {
                   variant="outline"
                   size="sm"
                   asChild
-                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-colors"
                 >
                   <a
                     href="https://discord.com/invite/dR4QY32uYQ"
@@ -157,7 +157,7 @@ const Footer = () => {
                   variant="outline"
                   size="sm"
                   asChild
-                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-colors"
                 >
                   <a
                     href="https://pypi.org/project/codegraphcontext/"
@@ -176,7 +176,7 @@ const Footer = () => {
                   variant="outline"
                   size="sm"
                   asChild
-                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+                  className="rounded-full bg-transparent border-white/20 text-white hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-colors"
                 >
                   <a
                     href="https://codegraphcontext.github.io/"
@@ -248,7 +248,7 @@ const Footer = () => {
               <h4 className="text-[11px] font-black uppercase tracking-widest text-white mb-4">Contact</h4>
               <div className="space-y-5 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 shrink-0 text-white" />
+                  <Mail className="h-4 w-4 shrink-0 text-primary" />
                   <a
                     href="mailto:shashankshekharsingh1205@gmail.com"
                     className="hover:text-white transition-colors text-[9px] whitespace-nowrap"
@@ -266,7 +266,7 @@ const Footer = () => {
                   </a>
                 </div> */}
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-4 w-4 mt-1 text-white" />
+                  <MapPin className="h-4 w-4 mt-1 text-primary" />
                   <p>(Available Worldwide 🌍)</p>
                 </div>
                 <div>
@@ -301,7 +301,7 @@ const Footer = () => {
                     type="submit"
                     size="sm"
                     disabled={isLoading}
-                    className="whitespace-nowrap bg-white text-black hover:bg-gray-200 transition-colors rounded-full font-black text-[10px] uppercase tracking-widest px-6"
+                    className="whitespace-nowrap bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all rounded-full font-black text-[10px] uppercase tracking-widest px-6 border-0"
                   >
                     {isLoading ? "SUBSCRIBING..." : "SUBSCRIBE"}
                   </Button>

@@ -32,10 +32,10 @@ const MoveToTop: React.FC = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-10 right-10 w-12 h-12 rounded-full bg-white hover:bg-gray-200 text-black flex items-center justify-center z-[99] border border-black/20"
+                    className="fixed bottom-10 right-10 w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center justify-center z-[99] border border-black/20"
                     aria-label="Scroll to top"
                 >
-                    <ChevronUp className="w-6 h-6 text-black" />
+                    <ChevronUp className="w-6 h-6 text-white" />
                 </motion.button>
             )}
         </AnimatePresence>

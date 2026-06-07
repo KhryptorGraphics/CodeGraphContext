@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sparkles, ArrowLeft, Github, Menu, X, Box } from "lucide-react";
+
 import MagneticButton from "./MagneticButton";
 
 function handleScroll(e: React.MouseEvent<HTMLAnchorElement>) {
@@ -27,11 +28,11 @@ const Navbar: React.FC = () => {
         {/* Left: Brand Logo & Title */}
         <Link to="/" className="flex items-center gap-2 md:gap-3 mr-4 shrink-0 group">
           <img
-            src="/cgcIcon-white.png"
+            src="/cgcIcon.png"
             className="w-7 h-7 md:w-8 md:h-8 hover:scale-95 transition-transform duration-300"
             alt="CodeGraphContext Logo"
           />
-          <span className="font-black text-sm md:text-lg text-white tracking-tighter uppercase block">
+          <span className="font-black text-sm md:text-lg gradient-text tracking-tighter uppercase block">
             CodeGraphContext
           </span>
         </Link>
@@ -81,7 +82,7 @@ const Navbar: React.FC = () => {
                 <Github className="w-4 h-4" />
               </a>
               <Link to="/explore">
-                <MagneticButton className="bg-white hover:bg-gray-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 sm:px-6 sm:py-2.5 rounded-full flex items-center gap-2 transition-colors duration-300">
+                <MagneticButton className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] font-bold text-[10px] uppercase tracking-widest px-4 py-2 sm:px-6 sm:py-2.5 rounded-full flex items-center gap-2 transition-all duration-300">
                   <span className="hidden sm:inline">Launch Explorer</span>
                   <span className="sm:hidden">Explore</span>
                   <Sparkles className="w-3 h-3" />
@@ -90,7 +91,7 @@ const Navbar: React.FC = () => {
             </>
           ) : (
             <Link to="/">
-              <MagneticButton className="border border-white/20 hover:border-white/40 bg-transparent hover:bg-white/5 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 sm:px-6 sm:py-2.5 rounded-full flex items-center gap-2 transition-colors duration-300">
+              <MagneticButton className="border border-white/20 hover:border-purple-500/50 bg-transparent hover:bg-purple-500/10 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 sm:px-6 sm:py-2.5 rounded-full flex items-center gap-2 transition-colors duration-300">
                 <ArrowLeft className="w-3 h-3" /> Back
               </MagneticButton>
             </Link>

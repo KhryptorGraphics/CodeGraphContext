@@ -39,7 +39,7 @@ const DemoSection = () => {
         
         {/* Heading Section */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 text-white uppercase tracking-tight py-2">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 gradient-text uppercase tracking-tight py-2">
             See CodeGraphContext in Action
           </h2>
           <p className="text-sm font-mono text-gray-500 uppercase tracking-widest max-w-3xl mx-auto mb-12">
@@ -78,10 +78,10 @@ const DemoSection = () => {
                           <img
                             src={viz.image}
                             alt={viz.title}
-                            className="w-full h-48 object-cover filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                            className="w-full h-48 object-cover opacity-90 group-hover:opacity-100 transition-all duration-300"
                             loading="lazy"
                           />
-                          <Badge className="absolute top-4 left-4 text-[10px] font-mono uppercase tracking-widest bg-black text-white border border-white/20 rounded-full py-1">
+                          <Badge className="absolute top-4 left-4 text-[10px] font-mono uppercase tracking-widest bg-purple-500/20 text-purple-300 border border-purple-500/50 rounded-full py-1">
                             {viz.badge}
                           </Badge>
                         </div>
@@ -101,7 +101,7 @@ const DemoSection = () => {
                       <img
                          src={viz.image}
                          alt={`${viz.title} Visualization`}
-                         className="w-full h-auto max-h-[80vh] object-contain rounded-2xl filter grayscale"
+                         className="w-full h-auto max-h-[80vh] object-contain rounded-2xl"
                       />
                     </DialogContent>
                   </Dialog>

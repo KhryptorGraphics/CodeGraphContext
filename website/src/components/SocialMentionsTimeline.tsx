@@ -57,7 +57,7 @@ export default function SocialMentionsTimeline() {
                 <div className="flex flex-col h-full pl-3">
                   <div className="flex items-center gap-4 mb-4">
                     <div 
-                      className="p-3 rounded-full bg-white text-black group-hover:scale-110 transition-transform duration-300"
+                      className="p-3 rounded-full bg-purple-600 text-white group-hover:scale-110 transition-transform duration-300"
                     >
                       <span className="text-xl">{link.icon}</span>
                     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -243,19 +244,31 @@ const BundleRegistrySection = () => {
                             <Package className="w-4 h-4 mr-2" />
                             Bundle Registry
                         </Badge>
-                        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight">
+                        <motion.h2 
+                            initial={{ opacity: 0, y: -20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5 }}
+                            className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 uppercase tracking-tight py-2 text-white"
+                        >
                             Pre-indexed CGC Bundles
-                        </h2>
-                        <p className="text-xs font-mono text-gray-500 uppercase tracking-widest mt-4 max-w-xl">
+                        </motion.h2>
+                        <motion.p 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="text-sm font-mono text-gray-400 uppercase tracking-widest max-w-2xl"
+                        >
                             Browse and download pre-compiled context bundles for popular repositories. Or search servers and community contributions.
-                        </p>
+                        </motion.p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
                         <Button 
                             variant="outline" 
                             size="sm" 
-                            className="w-full sm:w-auto border-white/10 bg-transparent text-white hover:bg-white hover:text-black transition-all duration-300 rounded-full uppercase tracking-widest text-[10px] font-bold px-6 py-6"
+                            className="w-full sm:w-auto border-white/10 bg-transparent text-white hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all duration-300 rounded-full uppercase tracking-widest text-[10px] font-bold px-6 py-6"
                             onClick={handleShareRegistry}
                         >
                             <Share2 className="w-4 h-4 mr-2" />
@@ -264,7 +277,7 @@ const BundleRegistrySection = () => {
 
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="w-full sm:w-auto border-white/10 bg-transparent text-white hover:bg-white hover:text-black transition-all duration-300 rounded-full uppercase tracking-widest text-[10px] font-bold px-6 py-6">
+                                <Button variant="outline" size="sm" className="w-full sm:w-auto border-white/10 bg-transparent text-white hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all duration-300 rounded-full uppercase tracking-widest text-[10px] font-bold px-6 py-6">
                                     <HelpCircle className="w-4 h-4 mr-2" />
                                     How to Use Bundles
                                 </Button>
@@ -302,8 +315,8 @@ const BundleRegistrySection = () => {
                 </div>
 
                 {import.meta.env.DEV && (
-                    <Alert className="mb-6 border-blue-500 bg-blue-50 dark:bg-blue-950/20">
-                        <AlertDescription className="text-blue-800 dark:text-blue-200">
+                    <Alert className="mb-6 border-purple-500 bg-purple-50 dark:bg-purple-950/20">
+                        <AlertDescription className="text-purple-800 dark:text-purple-200">
                             <strong>Development Mode:</strong> Showing mock bundle data.
                             Deploy to production to see real bundles from the Hugging Face registry.
                         </AlertDescription>
@@ -329,7 +342,7 @@ const BundleRegistrySection = () => {
                                 <TabsTrigger 
                                     key={category.id} 
                                     value={category.id}
-                                    className="py-2.5 px-6 text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-black text-gray-500 hover:text-white"
+                                    className="py-2.5 px-6 text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.4)] text-gray-500 hover:text-white"
                                 >
                                     {category.label}
                                 </TabsTrigger>
@@ -369,9 +382,13 @@ const BundleRegistrySection = () => {
                             }}
                         >
                             {filteredBundles.map((bundle, index) => (
-                                <div
-                                    key={`${bundle.repo}-${index}`}
+                                <motion.div 
+                                    key={`${bundle.name}-${bundle.version || index}`} 
                                     className="h-full"
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, margin: "-50px" }}
+                                    transition={{ duration: 0.5, delay: index * 0.05 }}
                                 >
                                     <GlassCard
                                         glowColor="none"
@@ -394,7 +411,7 @@ const BundleRegistrySection = () => {
                                                     </CardDescription>
                                                 </div>
                                                 {bundle.category && (
-                                                    <Badge variant="outline" className="ml-2 shrink-0 border-white/20 text-white bg-transparent rounded-full text-[8px] uppercase tracking-widest font-black">
+                                                    <Badge variant="outline" className="ml-2 shrink-0 border-purple-500/30 text-purple-400 bg-purple-500/10 rounded-full text-[8px] uppercase tracking-widest font-black">
                                                         {bundle.category}
                                                     </Badge>
                                                 )}
@@ -421,11 +438,11 @@ const BundleRegistrySection = () => {
                                                     <div />
                                                 )}
                                                 <div className="flex items-center gap-1">
-                                                    <HardDrive className="w-3.5 h-3.5 text-blue-400" />
+                                                    <HardDrive className="w-3.5 h-3.5 text-purple-400" />
                                                     <span>{bundle.size}</span>
                                                 </div>
                                                 <div className="flex items-center gap-1 col-span-2">
-                                                    <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                                                    <Calendar className="w-3.5 h-3.5 text-purple-400" />
                                                     <span>{new Date(bundle.generated_at).toLocaleDateString()}</span>
                                                 </div>
                                             </div>
@@ -433,7 +450,7 @@ const BundleRegistrySection = () => {
                                             {/* Version Info */}
                                             <div className="flex gap-2 text-[10px]">
                                                 {bundle.version && (
-                                                    <Badge variant="secondary" className="bg-white/10 text-gray-300 hover:bg-white/20 border-0">v{bundle.version}</Badge>
+                                                    <Badge variant="secondary" className="bg-white/10 text-gray-300 hover:bg-purple-500/30 border-0">v{bundle.version}</Badge>
                                                 )}
                                                 <a href={`https://github.com/${bundle.repo}/commit/${bundle.commit}`}
                                                     target="_blank"
@@ -442,7 +459,7 @@ const BundleRegistrySection = () => {
                                                 >
                                                     <Badge
                                                         variant="secondary"
-                                                        className="font-mono cursor-pointer bg-white/10 text-gray-300 hover:bg-white/20 border-0"
+                                                        className="font-mono cursor-pointer bg-white/10 text-gray-300 hover:bg-purple-500/30 border-0"
                                                     >
                                                         {bundle.commit?.slice(0, 7) || 'unknown'}
                                                         <ExternalLink className="h-2.5 w-2.5 ml-1" />
@@ -451,25 +468,27 @@ const BundleRegistrySection = () => {
                                             </div>
 
                                             {/* Action Buttons */}
-                                            <div className="flex gap-3 w-full pt-2">
-                                                <Button className="flex-1 bg-white hover:bg-gray-200 text-black border-0 text-[10px] uppercase font-black tracking-widest py-3 rounded-full" asChild>
+                                            <div className="flex gap-2 w-full pt-2">
+                                                <Button className="flex-1 bg-gradient-to-r from-purple-600 to-cyan-500 shadow-[0_0_15px_rgba(168,85,247,0.3)] ring-1 ring-purple-500/30 hover:opacity-90 text-white border-0 text-[10px] uppercase font-bold tracking-wider py-3 px-2 rounded-full" asChild>
                                                     <a href={`/explore?bundle_url=${encodeURIComponent(bundle.download_url)}`}>
-                                                        <img src="/cgcIcon-white.png" alt="CGC" className="w-3 h-3 mr-1.5 shrink-0 invert" />
+                                                        <img src="/cgcIcon.png" alt="CGC" className="w-3 h-3 mr-1 shrink-0" />
                                                         Visualize
                                                     </a>
                                                 </Button>
                                                 <Button 
                                                     variant="outline" 
-                                                    className="flex-1 text-[10px] uppercase font-black tracking-widest py-3 rounded-full bg-transparent border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+                                                    className="flex-1 text-[10px] uppercase font-bold tracking-wider py-3 px-2 rounded-full bg-transparent border-white/20 text-white hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-colors overflow-hidden"
                                                     onClick={() => handleDownloadBundle(bundle.download_url, bundle.bundle_name || `${bundle.name}.cgc`)}
                                                     disabled={downloadingUrls[bundle.download_url]}
                                                 >
                                                     {downloadingUrls[bundle.download_url] ? (
-                                                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin shrink-0" />
+                                                        <Loader2 className="w-3 h-3 mr-1 animate-spin shrink-0" />
                                                     ) : (
-                                                        <Download className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                                        <Download className="w-3 h-3 mr-1 shrink-0" />
                                                     )}
-                                                    {downloadingUrls[bundle.download_url] ? "DOWNLOADING..." : "DOWNLOAD"}
+                                                    <span className="truncate">
+                                                        {downloadingUrls[bundle.download_url] ? "DL'ING..." : "DOWNLOAD"}
+                                                    </span>
                                                 </Button>
                                             </div>
 
@@ -483,7 +502,7 @@ const BundleRegistrySection = () => {
                                                         bundle.bundle_name || `${bundle.name}-${bundle.version || 'latest'}.cgc`,
                                                         index
                                                     )}
-                                                    className="shrink-0 p-1.5 rounded-full hover:bg-white hover:text-black transition-colors"
+                                                    className="shrink-0 p-1.5 rounded-full hover:bg-purple-600 hover:text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-colors"
                                                     aria-label={`Copy command for ${bundle.name}`}
                                                     title="Copy to clipboard"
                                                 >
@@ -496,7 +515,7 @@ const BundleRegistrySection = () => {
                                             </div>
                                         </div>
                                     </GlassCard>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
