@@ -1,7 +1,7 @@
 # CGC E2E Bug Report
 
 **Date:** 2026-06-07 (initial E2E) · **Re-test:** 2026-06-07 after fixes  
-**Package:** `codegraphcontext` **0.4.15** (editable install from repo into `/tmp/cgc-e2e-venv`)  
+**Package:** `codegraphcontext` **0.4.16** (editable install from repo into `/tmp/cgc-e2e-venv`)  
 **Python:** 3.12.3  
 **OS:** Linux 6.8.0-124-generic  
 **Test method:** Manual subprocess E2E (no pytest). Isolated `HOME=/tmp/cgc-e2e-*` per scenario unless noted.  
@@ -538,7 +538,7 @@ Earlier sweep from CGC repo CWD was **contaminated** by `.codegraphcontext` in t
 2. **FalkorDB Remote:** Use env vars: `export FALKORDB_HOST=127.0.0.1 FALKORDB_PORT=6379`.
 3. **Do not trust exit codes** on `find`/`analyze`/`query` — verify stdout has results.
 4. **Call-chain queries:** Use `cgc query` with custom Cypher until `analyze chain` is fixed.
-5. **Bundles:** Export works; import on KuzuDB broken in 0.4.15 — re-index instead of importing.
+5. **Bundles:** Export works; import on KuzuDB broken in 0.4.16 — re-index instead of importing.
 6. **Per-repo mode:** `cd` into target repo before `cgc index .`; avoid running from a parent repo that already has `.codegraphcontext/`.
 
 ---
@@ -547,7 +547,7 @@ Earlier sweep from CGC repo CWD was **contaminated** by `.codegraphcontext` in t
 
 | Path | Contents |
 |------|----------|
-| `/tmp/cgc-e2e-venv/` | PyPI venv with `codegraphcontext==0.4.15` |
+| `/tmp/cgc-e2e-venv/` | PyPI venv with `codegraphcontext==0.4.16` |
 | `/tmp/cgc-e2e-results/falkordb.log` | FalkorDB failure logs |
 | `/tmp/cgc-e2e-results/kuzudb.log` | Full KuzuDB command suite |
 | `/tmp/cgc-e2e-results/ladybugdb.log` | Full LadybugDB command suite |
