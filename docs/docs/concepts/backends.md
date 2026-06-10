@@ -106,13 +106,30 @@ Configure CGC to connect to Neo4j:
 ```bash
 cgc config db neo4j
 cgc config set NEO4J_URI bolt://localhost:7687
-cgc config set NEO4J_USER neo4j
+cgc config set NEO4J_USERNAME neo4j
 cgc config set NEO4J_PASSWORD password
 ```
 
+Or run the interactive wizard: `cgc neo4j setup`.
+
 ---
 
-## In-Memory vs. File-Backed Selection Logic
+## 5. Nornic DB
+
+Nornic is a Neo4j-compatible embedded graph driver. Configure it when you want Bolt/Cypher semantics without a standalone Neo4j server.
+
+```bash
+cgc config db nornic
+cgc config set NORNIC_URI bolt://localhost:7687
+cgc config set NORNIC_USERNAME nornic
+cgc config set NORNIC_PASSWORD <password>
+```
+
+Connection keys mirror the Neo4j section in [Configuration Reference](../reference/config.md).
+
+---
+
+## Backend Selection Logic
 
 When executing commands, CGC automatically resolves the active database connection using the following precedence:
 
